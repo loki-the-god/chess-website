@@ -1,0 +1,22 @@
+{
+    "name": "chessweb",
+    "version": "1.0.0",
+    "description": "A website to play chess against my engine",
+    "license": "MIT",
+    "author": "",
+    "type": "commonjs",
+    "main": "main.js",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "styles": "npx @tailwindcss/cli -i ./style/input.css -o ./style/style.css",
+        "dev": "npx @tailwindcss/cli -i ./style/input.css -o ./style/style.css --watch",
+        "start": "npm run build-styles && npx serve"
+    },
+    "private": true,
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.2.0",
+        "tailwindcss": "^4.2.0"
+    }
+}

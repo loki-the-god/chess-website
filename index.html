@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Chess site</title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="style/style.css" />
+    </head>
+    <body class="pl-2 pt-2 bg-purple-200">
+        <main class="flex">
+            <div class="size-128 grid grid-cols-8" id="board"></div>
+            <div class="bg-sky-900 w-36 h-128 flex flex-col items-center text-white">
+                <p>Moves:</p>
+                <div class="flex overflow-y-auto">
+                    <ul id="white-moves"></ul>
+                    <ul id="black-moves"></ul>
+                </div>
+                <div id="result"></div>
+            </div>
+            <section id="choose" class="pl-2">
+                <header class="flex justify-center">
+                    <h2 class="font-bold text-xl">Game Settings</h2>
+                </header>
+                <div id="choose-mode">
+                    <button id="analysis" class="bg-purple-200 cursor-pointer border-b-2 border-b-purple-600">Analysis</button>
+                    <button id="play" class="bg-purple-200 cursor-pointer border-none">Vs. Computer</button>
+                </div>
+                <div class="hidden" id="vs-computer">
+                    <div id="choose-color">
+                        <button id="white" class="bg-purple-200 cursor-pointer border-b-2 border-b-purple-600">
+                            <img src="assets/w_king.png" class="size-16" alt="Play as white" />
+                        </button>
+                        <button id="black" class="bg-purple-200 cursor-pointer border-none">
+                            <img src="assets/b_king.png" class="size-16" alt="Play as white" />
+                        </button>
+                    </div>
+                    <button
+                        id="start"
+                        class="cursor-pointer hover:bg-purple-500 border-2 pl-1.25 pr-1.25 border-gray-500 hover:border-none hover:pl-1.75 hover:pr-1.75 hover:pt-0.5 hover:pb-0.5"
+                    >
+                        Play!
+                    </button>
+                </div>
+            </section>
+        </main>
+        <script defer type="module" src="src/main.js"></script>
+    </body>
+</html>
