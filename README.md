@@ -2,19 +2,19 @@
 
 ---
 
-A chess website made using HTML, Tailwind CSS, and vanilla JavaScript.
-It allows users to play chess against the computer and analyze positions.
-The engine and the move generation was entirely made from scratch without libraries.
+A chess website made using HTML, Tailwind CSS, and vanilla JavaScript.  
+It allows users to play chess against the computer and analyze positions.  
+The engine and the move generation was entirely made from scratch without libraries.  
 
 ## Installation
 
-     git clone https://github.com/loki-the-god/chess-website.git
-     cd chess-website
-     npm run start
+     git clone https://github.com/loki-the-god/chess-website.git  
+     cd chess-website  
+     npm run start  
 
 ## Usage
-Click on the pieces and then click on any of the higlighted squares to move.
-To play against the computer, select Vs. Computer, choose a color and press Play.
+Click on the pieces and then click on any of the higlighted squares to move.  
+To play against the computer, select Vs. Computer, choose a color and press Play.  
 
 ## Planned Improvements
 - Improve the engine
