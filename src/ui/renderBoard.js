@@ -11,7 +11,7 @@ export function displayBoard(perspective) {
             let color = (rank + file) % 2 === 1 ? "light" : "dark";
             uiFile = perspective === "w" ? file : 7 - file;
             uiRank = perspective === "w" ? rank : 7 - rank;
-            brd.innerHTML += `<button class="${colorClass} size-16 border-none flex items-center justify-center relative" id="${files[uiFile]}${uiRank + 1}" data-square="${color}"></button>`;
+            brd.innerHTML += `<button class="${colorClass} size-16 border-none flex items-center justify-center relative" id="${files[uiFile]}${uiRank + 1}" data-square="${color}" aria-live="polite" aria-label="square-${files[uiFile]}${uiRank + 1}"></button>`;
         }
     }
 }
@@ -37,8 +37,9 @@ export function renderState(state) {
                 let pos = file + rank * 8;
                 if (((1n << BigInt(pos)) & bb) === 1n << BigInt(pos)) {
                     let color = piece.toLowerCase() === piece ? "b" : "w";
+                    let coolor = color === "w" ? "white" : "black";
                     let src = `assets/${color}_${pieceMap[piece.toLowerCase()]}.png`;
-                    square.innerHTML = `<img class="size-16" src="${src}" data-color="${color}">`;
+                    square.innerHTML = `<img class="size-16" src="${src}" data-color="${color}" alt="${coolor}-${pieceMap[piece.toLowerCase()]}">`;
                     break;
                 }
             }
