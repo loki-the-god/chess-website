@@ -1,12 +1,12 @@
 # My chess website
 
----
-
-A chess website made using HTML, Tailwind CSS, and vanilla JavaScript.  
+A chess website made using HTML, Tailwind CSS, PostCSS, and vanilla JavaScript.  
 It allows users to play chess against the computer and analyze positions.  
 The engine and the move generation was entirely made from scratch without libraries.  
 
 ## Installation
+
+Run these commands: 
 
      git clone https://github.com/loki-the-god/chess-website.git  
      cd chess-website  
