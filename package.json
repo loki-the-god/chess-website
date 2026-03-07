@@ -19,6 +19,8 @@
         "@html-eslint/eslint-plugin": "^0.58.1",
         "@tailwindcss/cli": "^4.2.0",
         "eslint": "^10.0.3",
+        "postcss": "^8.5.8",
+        "postcss-cli": "^11.0.1",
         "tailwindcss": "^4.2.0"
     },
     "repository": {
