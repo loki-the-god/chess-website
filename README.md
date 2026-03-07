@@ -10,6 +10,7 @@ The engine and the move generation was entirely made from scratch without librar
 
      git clone https://github.com/loki-the-god/chess-website.git  
      cd chess-website  
+     npm install
      npm run start  
 
 ## Usage
