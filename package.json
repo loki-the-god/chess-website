@@ -12,7 +12,7 @@
     "scripts": {
         "styles": "npx @tailwindcss/cli -i ./style/input.css -o ./style/style.css",
         "dev": "npx @tailwindcss/cli -i ./style/input.css -o ./style/style.css --watch",
-        "start": "npm run build-styles && npx serve"
+        "start": "npm run styles && npx serve"
     },
     "private": true,
     "devDependencies": {
