@@ -115,7 +115,7 @@ export function computerMove(state) {
     if (legalMoves.length !== 0) {
         let moveToMake = legalMoves[Math.floor(Math.random() * legalMoves.length)];
         let myArray = move(moveToMake, state);
-        addMove(moveToMake, myArray[0], myArray[3]);
+        addMove(moveToMake, myArray[0], myArray[3], state);
         renderState(state);
         getClicks(state, true);
     } else {

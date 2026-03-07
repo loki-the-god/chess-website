@@ -227,19 +227,19 @@ export function getClicks(state, game) {
     }
 }
 
-export function addMove(move, capture, moved) {
+export function addMove(move, capture, moved, state) {
     numMoves.push(move);
     moves.push(moveString(move));
     captures.push(capture);
     movedPieces.push(moved);
     let li = document.createElement("li");
     li.innerHTML = moveString(move);
-    if (index % 2 === 0) {
+    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-14");
+    if (state.turn === "w") {
         document.getElementById("black-moves").appendChild(li);
     } else {
         document.getElementById("white-moves").appendChild(li);
     }
-    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-14");
 }
 
 function movePiece(e) {
@@ -251,7 +251,7 @@ function movePiece(e) {
     let capture = myList[0];
     let pawn = myList[2];
     state = myList[1];
-    addMove(targetSquare.move, capture, myList[3]);
+    addMove(targetSquare.move, capture, myList[3], state);
     renderState(state);
     state["nextturn"] += 1;
     if (capture || pawn) {
