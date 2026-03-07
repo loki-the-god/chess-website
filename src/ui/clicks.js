@@ -234,14 +234,12 @@ export function addMove(move, capture, moved) {
     movedPieces.push(moved);
     let li = document.createElement("li");
     li.innerHTML = moveString(move);
-    console.log(index);
-    console.log(index % 2)
     if (index % 2 === 0) {
         document.getElementById("black-moves").appendChild(li);
     } else {
         document.getElementById("white-moves").appendChild(li);
     }
-    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-14")
+    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-14");
 }
 
 function movePiece(e) {

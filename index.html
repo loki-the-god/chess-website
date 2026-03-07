@@ -8,10 +8,10 @@
         <link rel="stylesheet" href="style/style.css" />
     </head>
     <body class="pl-2 pt-2 bg-purple-200">
-        <main class="flex">
-            <div class="size-128 grid grid-cols-8" id="board"></div>
-            <div class="bg-sky-900 w-36 h-128 flex flex-col items-center text-white">
-                <p>Moves:</p>
+        <main class="flex flex-col sm:flex-row">
+            <div class="size-[90vmin] sm:size-128 grid grid-cols-8 aspect-square" id="board"></div>
+            <div class="bg-sky-900 w-[90vmin] h-36 sm:w-36 sm:h-128 flex flex-col items-center text-white">
+                <p class="text-xl sm:text-lg">Moves:</p>
                 <div class="flex overflow-y-auto">
                     <ul id="white-moves"></ul>
                     <ul id="black-moves"></ul>

@@ -4,7 +4,7 @@
     "description": "A website to play chess against my engine",
     "license": "MIT",
     "author": "",
-    "type": "commonjs",
+    "type": "module",
     "main": "main.js",
     "directories": {
         "test": "tests"
@@ -16,7 +16,13 @@
     },
     "private": true,
     "devDependencies": {
+        "@html-eslint/eslint-plugin": "^0.58.1",
         "@tailwindcss/cli": "^4.2.0",
+        "eslint": "^10.0.3",
         "tailwindcss": "^4.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/loki-the-god/chess-website.git"
     }
 }

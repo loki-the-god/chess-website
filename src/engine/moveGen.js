@@ -75,7 +75,7 @@ function pawnMoves(bb, color, enemybb, friendlybb, enpassant) {
             }
             if (
                 ((1n << (BigInt(i) + colorIndice * 9n)) & enemybb) !== 0n &&
-                !((i % 8 == 7 && color === "w") || (i % 8 === 0 && color === "b"))
+                !((i % 8 === 7 && color === "w") || (i % 8 === 0 && color === "b"))
             ) {
                 if ((8n <= BigInt(i) && BigInt(i) <= 15n && color === "b") || (48n <= BigInt(i) && BigInt(i) <= 55n && color === "w")) {
                     let promMove = BigInt(i) + ((BigInt(i) + colorIndice * 9n) << 6n);

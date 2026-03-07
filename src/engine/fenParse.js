@@ -20,13 +20,12 @@ export function fenParse(fen) {
         fifty: 0,
         nextturn: 0,
         cacherights: [],
-        cacheep: []
+        cacheep: [],
     };
     let flags = [];
     let char;
     for (let x = 0; x < fen.length; x++) {
         char = fen[x];
-        let piece;
         if (char === "/" || (char === " " && rank === 0)) {
             rank -= 1;
             file = 0;
