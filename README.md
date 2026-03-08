@@ -11,7 +11,8 @@ Run these commands:
      git clone https://github.com/loki-the-god/chess-website.git  
      cd chess-website  
      npm install
-     npm run start  
+     npm run build
+     npm run preview
 
 ## Usage
 Click on the pieces and then click on any of the higlighted squares to move.  

@@ -338,7 +338,7 @@ function handlePromotion(e) {
     let pieces = ["queen", "knight", "rook", "bishop"];
     for (let i = 0; i < 4; i++) {
         let square = document.getElementById(pos[i]);
-        let src = `assets/${turn}_${pieces[i]}.png`;
+        let src = `/assets/${turn}_${pieces[i]}.png`;
         square.innerHTML += `<button class="bg-indigo-400 border-none size-16 flex items-center justify-center absolute rounded-4xl group hover:bg-orange-700 hover:rounded-none transition-all duration-100"><img class="size-12 group-hover:size-16 transition-all duration-100" src="${src}"></button>`;
         let promButton = square.children[square.children.length - 1];
         promButton.move = targetProm.move[i];

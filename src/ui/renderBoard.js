@@ -38,7 +38,7 @@ export function renderState(state) {
                 if (((1n << BigInt(pos)) & bb) === 1n << BigInt(pos)) {
                     let color = piece.toLowerCase() === piece ? "b" : "w";
                     let coolor = color === "w" ? "white" : "black";
-                    let src = `assets/${color}_${pieceMap[piece.toLowerCase()]}.png`;
+                    let src = `/assets/${color}_${pieceMap[piece.toLowerCase()]}.png`;
                     square.innerHTML = `<img class="w-full h-full object-contain" src="${src}" data-color="${color}" alt="${coolor}-${pieceMap[piece.toLowerCase()]}">`;
                     break;
                 }
