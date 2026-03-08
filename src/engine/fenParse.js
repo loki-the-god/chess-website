@@ -21,6 +21,7 @@ export function fenParse(fen) {
         nextturn: 0,
         cacherights: [],
         cacheep: [],
+        movelist: [],
     };
     let flags = [];
     let char;

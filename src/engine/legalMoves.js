@@ -148,6 +148,7 @@ export function move(move, state) {
     let castlingObj = { 4484: 327n, 4228: 192n, 8124: 3967n, 7868: 3832n };
     state["cacherights"].push(state["castling"]);
     state["cacheep"].push(state["enpassant"]);
+    state.movelist.push(move);
     let start6Mask = BigInt(0b111111);
     let moveStart = move & start6Mask;
     let target6Mask = start6Mask << 6n;
@@ -286,6 +287,7 @@ export function unMove(move, state, capture, movedPiece) {
     }
     state["enpassant"] = state["cacheep"].pop();
     state["castling"] = state["cacherights"].pop();
+    state.movelist.pop();
     return state;
 }
 

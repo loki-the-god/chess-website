@@ -2,6 +2,7 @@ import { fenParse } from "../engine/fenParse.js";
 import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
 import { displayBoard, renderState, files } from "./renderBoard.js";
 import { generateLegalMoves, move, inCheck } from "../engine/legalMoves.js";
+import { search } from "../engine/search.js";
 
 export const startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 export let gameplay = "analysis";
@@ -113,7 +114,7 @@ function startGame() {
 export function computerMove(state) {
     let legalMoves = generateLegalMoves(state);
     if (legalMoves.length !== 0) {
-        let moveToMake = legalMoves[Math.floor(Math.random() * legalMoves.length)];
+        let moveToMake = search(state, 3, -Infinity, Infinity)[1];
         let myArray = move(moveToMake, state);
         addMove(moveToMake, myArray[0], myArray[3], state);
         renderState(state);
