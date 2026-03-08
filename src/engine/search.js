@@ -3,7 +3,7 @@ import { generateLegalMoves, inCheck, move, unMove } from "./legalMoves.js";
 
 export function search(state, depth, alpha, beta) {
     if (depth === 0) {
-        return [evaluate(state), state.movelist[state.movelist.length - 1]];
+        return [evaluate(state), null];
     }
     let moves = generateLegalMoves(state);
     let bestMove;

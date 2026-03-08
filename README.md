@@ -1,6 +1,6 @@
 # My chess website
 
-A chess website made using HTML, Tailwind CSS, PostCSS, and vanilla JavaScript.  
+A chess website made using HTML, Tailwind CSS, PostCSS, and vanilla JavaScript, and bundled with Vite.  
 It allows users to play chess against the computer and analyze positions.  
 The engine and the move generation was entirely made from scratch without libraries.  
 
