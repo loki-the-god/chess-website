@@ -200,7 +200,6 @@ export function move(move, state) {
         let rook = turn === "w" ? "R" : "r";
         let castleMove = `${move}`;
         let rookMove = castlingObj[castleMove];
-        console.log(rookMove);
         let rookStart = rookMove & start6Mask;
         let rookTarget = (rookMove & target6Mask) >> 6n;
         state[rook] &= ~(1n << rookStart);
