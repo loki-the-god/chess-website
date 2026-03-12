@@ -262,7 +262,7 @@ function movePiece(e) {
     }
     index += 1;
     if (game) {
-        computerMove(state);
+        setTimeout(() => computerMove(state), 0);
     } else {
         getClicks(state);
     }
