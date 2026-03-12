@@ -12,11 +12,11 @@ function countMaterial(state, color) {
         let piece = pieces[i];
         let value = pieceValues[i];
         let statePiece = color === "w" ? piece : piece.toLowerCase();
-        if (statePiece === 0n) {
+        if (state[statePiece] === 0n) {
             continue;
         }
-        let pieceCount = state[statePiece].toString(2).length;
-        material += value + pieceCount;
+        let pieceCount = state[statePiece].toString(2).split("1").length - 1;
+        material += value * pieceCount;
     }
     return material;
 }
