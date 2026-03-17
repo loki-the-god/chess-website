@@ -1,16 +1,18 @@
 import { generateMoves } from "./moveGen.js";
 import { files } from "../ui/renderBoard.js";
 
+// TODO: REWRITE MOVES!!!!
+
+
 export function generateLegalMoves(state) {
-    let moves = generateMoves(state, state["turn"], true);
+    let moves = generateMoves(state, state["turn"]);
     let legalMoves = [];
     let kingLetter = state["turn"] === "w" ? "K" : "k";
     let startKingPos = BigInt(Math.round(Math.log2(Number(state[kingLetter]))));
     let otherKingLetter = state["turn"] === "b" ? "K" : "k";
     let otherKingPos = BigInt(Math.round(Math.log2(Number(state[otherKingLetter]))));
-    state["turn"] = state["turn"] === "w" ? "b" : "w";
-    let check = inCheck(startKingPos, generateMoves(state, state["turn"]));
-    state["turn"] = state["turn"] === "w" ? "b" : "w";
+    let oppColor = state["turn"] === "w" ? "b" : "w";
+    let check = inCheck(startKingPos, generateMoves(state, oppColor));
     if (state["castling"] > 0) {
         if (
             ((startKingPos === 4n && state["turn"] === "w") || (otherKingPos === 4n && state["turn"] === "b")) &&
@@ -52,7 +54,7 @@ export function generateLegalMoves(state) {
             let kingPos = BigInt(Math.round(Math.log2(Number(newState[kingLetter]))));
             moveValid = !inCheck(kingPos, opponentMoves);
         }
-        state = unMove(moveTest, newState, capture, pieceMoved);
+        unMove(moveTest, newState, capture, pieceMoved);
         if (moveValid) {
             legalMoves.push(moveTest);
             if (!check) {
@@ -60,16 +62,16 @@ export function generateLegalMoves(state) {
                     if ((state["castling"] & 8) !== 0 && moveTest === 324n && (allBb & (1n << 6n)) === 0n && (allBb & (1n << 5n)) === 0n) {
                         let castlingTest = 388n;
                         let [newcapture, newnewState, _, newpieceMoved] = move(castlingTest, state);
-                        if (structuredClone(newnewState)[kingLetter] !== 0n) {
+                        if (newnewState[kingLetter] !== 0n) {
                             let newkingPos = BigInt(Math.round(Math.log(Number(newnewState[kingLetter])) / Math.log(2)));
                             let oppMoves = generateMoves(newnewState, newnewState["turn"]);
                             let castleValid = !inCheck(newkingPos, oppMoves);
-                            state = unMove(castlingTest, newnewState, newcapture, newpieceMoved);
+                            unMove(castlingTest, newnewState, newcapture, newpieceMoved);
                             if (castleValid) {
                                 legalMoves.push(4484n);
                             }
                         } else {
-                            state = unMove(castlingTest, newnewState, newcapture, newpieceMoved);
+                            unMove(castlingTest, newnewState, newcapture, newpieceMoved);
                         }
                     }
                     if (
@@ -81,17 +83,17 @@ export function generateLegalMoves(state) {
                     ) {
                         let castlingTest = 132n;
                         [capture, newState, _, pieceMoved] = move(castlingTest, state);
-                        if (structuredClone(newState)[kingLetter] !== 0n) {
+                        if (newState[kingLetter] !== 0n) {
                             let kingPos = BigInt(Math.round(Math.log(Number(newState[kingLetter])) / Math.log(2)));
                             let oppMoves = generateMoves(newState, newState["turn"]);
                             let castleValid = !inCheck(kingPos, oppMoves);
-                            state = unMove(castlingTest, newState, capture, pieceMoved);
+                            unMove(castlingTest, newState, capture, pieceMoved);
 
                             if (castleValid) {
                                 legalMoves.push(4228n);
                             }
                         } else {
-                            state = unMove(castlingTest, newnewState, newcapture, newpieceMoved);
+                            unMove(castlingTest, newnewState, newcapture, newpieceMoved);
                         }
                     }
                 } else {
@@ -103,16 +105,16 @@ export function generateLegalMoves(state) {
                     ) {
                         let castlingTest = 4028n;
                         [capture, newState, _, pieceMoved] = move(castlingTest, state);
-                        if (structuredClone(newState)[kingLetter] !== 0n) {
+                        if (newState[kingLetter] !== 0n) {
                             let kingPos = BigInt(Math.round(Math.log(Number(newState[kingLetter])) / Math.log(2)));
                             let oppMoves = generateMoves(newState, newState["turn"]);
                             let castleValid = !inCheck(kingPos, oppMoves);
-                            state = unMove(castlingTest, newState, capture, pieceMoved);
+                            unMove(castlingTest, newState, capture, pieceMoved);
                             if (castleValid) {
                                 legalMoves.push(8124n);
                             }
                         } else {
-                            state = unMove(castlingTest, newnewState, newcapture, newpieceMoved);
+                            unMove(castlingTest, newnewState, newcapture, newpieceMoved);
                         }
                     }
                     if (
@@ -124,16 +126,16 @@ export function generateLegalMoves(state) {
                     ) {
                         let castlingTest = 3772n;
                         [capture, newState, _, pieceMoved] = move(castlingTest, state);
-                        if (structuredClone(newState)[kingLetter] !== 0n) {
+                        if (newState[kingLetter] !== 0n) {
                             let kingPos = BigInt(Math.round(Math.log(Number(newState[kingLetter])) / Math.log(2)));
                             let oppMoves = generateMoves(newState, newState["turn"]);
                             let castleValid = !inCheck(kingPos, oppMoves);
-                            state = unMove(castlingTest, newState, capture, pieceMoved);
+                            unMove(castlingTest, newState, capture, pieceMoved);
                             if (castleValid) {
                                 legalMoves.push(7868n);
                             }
                         } else {
-                            state = unMove(castlingTest, newnewState, newcapture, newpieceMoved);
+                            unMove(castlingTest, newnewState, newcapture, newpieceMoved);
                         }
                     }
                 }
@@ -143,7 +145,7 @@ export function generateLegalMoves(state) {
     return legalMoves;
 }
 
-export function move(move, state) {
+export function move(move, state, debug) {
     let pieces = ["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"];
     let castlingObj = { 4484: 327n, 4228: 192n, 8124: 3967n, 7868: 3832n };
     state["cacherights"].push(state["castling"]);

@@ -52,7 +52,7 @@ function squareToNumber(square) {
     let file = files.indexOf(fileStr);
     return rank * 8 + file;
 }
-function moveString(move) {
+export function moveString(move) {
     let start6Mask = BigInt(0b111111);
     let moveStart = move & start6Mask;
     let target6Mask = start6Mask << 6n;
@@ -195,33 +195,36 @@ export function getClicks(state, game) {
                 }
             }
         }
-        return;
-    }
-    for (let rank = 0; rank < 8; rank++) {
-        for (let file = 0; file < 8; file++) {
-            square = document.getElementById(`${files[file]}${rank + 1}`);
-            square.removeEventListener("click", addHighlights);
-            square.removeEventListener("click", clearHighlights);
-            square.removeEventListener("click", movePiece);
-            square.removeEventListener("click", handlePromotion);
-            if (square.children.length > 1) {
-                square.removeChild(square.children[1]);
-            }
-            if (square.innerHTML) {
-                color = square.children[0].dataset.color;
-                if (color === turn) {
-                    square.classList.add("cursor-pointer");
-                    square.legalMoves = legalMoves;
-                    square.state = state;
-                    square.game = game;
-                    square.addEventListener("click", addHighlights);
+        if (game) {
+            document.getElementById("choose").classList.remove("hidden");
+        }
+    } else {
+        for (let rank = 0; rank < 8; rank++) {
+            for (let file = 0; file < 8; file++) {
+                square = document.getElementById(`${files[file]}${rank + 1}`);
+                square.removeEventListener("click", addHighlights);
+                square.removeEventListener("click", clearHighlights);
+                square.removeEventListener("click", movePiece);
+                square.removeEventListener("click", handlePromotion);
+                if (square.children.length > 1) {
+                    square.removeChild(square.children[1]);
+                }
+                if (square.innerHTML) {
+                    color = square.children[0].dataset.color;
+                    if (color === turn) {
+                        square.classList.add("cursor-pointer");
+                        square.legalMoves = legalMoves;
+                        square.state = state;
+                        square.game = game;
+                        square.addEventListener("click", addHighlights);
+                    } else {
+                        square.addEventListener("click", clearHighlights);
+                    }
                 } else {
                     square.addEventListener("click", clearHighlights);
-                }
-            } else {
-                square.addEventListener("click", clearHighlights);
-                if (square.classList.contains("cursor-pointer")) {
-                    square.classList.remove("cursor-pointer");
+                    if (square.classList.contains("cursor-pointer")) {
+                        square.classList.remove("cursor-pointer");
+                    }
                 }
             }
         }
@@ -241,6 +244,7 @@ export function addMove(move, capture, moved, state) {
     } else {
         document.getElementById("white-moves").appendChild(li);
     }
+    index += 1;
 }
 
 function movePiece(e) {
@@ -260,7 +264,6 @@ function movePiece(e) {
     } else {
         state["fifty"] += 1;
     }
-    index += 1;
     if (game) {
         setTimeout(() => computerMove(state), 0);
     } else {

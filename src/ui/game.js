@@ -3,6 +3,7 @@ import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
 import { displayBoard, renderState, files } from "./renderBoard.js";
 import { generateLegalMoves, move, inCheck } from "../engine/legalMoves.js";
 import { search } from "../engine/search.js";
+import { initTables } from "../engine/attacks.js";
 
 export const startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 export let gameplay = "analysis";
@@ -11,6 +12,7 @@ let cacheTurn = null;
 
 export function start() {
     let state = fenParse(startFen);
+    initTables();
     displayBoard(state["turn"]);
     renderState(state);
     getClicks(state, false);

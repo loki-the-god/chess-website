@@ -15,8 +15,17 @@ function countMaterial(state, color) {
         if (state[statePiece] === 0n) {
             continue;
         }
-        let pieceCount = state[statePiece].toString(2).split("1").length - 1;
+        let pieceCount = popCount(state[statePiece]);
         material += value * pieceCount;
     }
     return material;
+}
+
+function popCount(bb) {
+    let count = 0;
+    while (bb) {
+        bb &= bb - 1n;
+        count++;
+    }
+    return count;
 }
