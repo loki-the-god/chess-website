@@ -52,18 +52,34 @@ function squareToNumber(square) {
     let file = files.indexOf(fileStr);
     return rank * 8 + file;
 }
-export function moveString(move) {
+export function moveString(move, piece, capture) {
     let start6Mask = BigInt(0b111111);
     let moveStart = move & start6Mask;
     let target6Mask = start6Mask << 6n;
     let moveTarget = (move & target6Mask) >> 6n;
     let moveFlag = (move & (start6Mask << 12n)) >> 12n;
+    let pieceMove = "";
+    if (piece.toLowerCase() !== "p") {
+        pieceMove = piece.toUpperCase();
+        if (capture) {
+            pieceMove += "x";
+        }
+    } else if (capture) {
+        pieceMove = `${numberToSquare(moveStart)[0]}x`;
+    }
     const flagObj = { 4: "Q", 5: "N", 6: "R", 7: "B" };
     if (moveFlag > 3n) {
         let flag = flagObj[`${moveFlag}`];
-        return `${numberToSquare(moveStart)}${numberToSquare(moveTarget)}${flag.toLowerCase()}`;
-    } else {
-        return `${numberToSquare(moveStart)}${numberToSquare(moveTarget)}`;
+        return `${pieceMove}${numberToSquare(moveTarget)}=${flag.toUpperCase()}`;
+    }
+    else if (moveFlag === 1n) {
+        let moveStr = move < 6144n ? "0-0" : "0-0-0";
+        return moveStr;
+    } else if (moveFlag === 2n) {
+        return `${numberToSquare(moveStart)[0]}x${numberToSquare(moveTarget)}`;
+    }
+    else {
+        return `${pieceMove}${numberToSquare(moveTarget)}`;
     }
 }
 function addHighlights(e) {
@@ -233,12 +249,12 @@ export function getClicks(state, game) {
 
 export function addMove(move, capture, moved, state) {
     numMoves.push(move);
-    moves.push(moveString(move));
+    moves.push(moveString(move, moved, capture));
     captures.push(capture);
     movedPieces.push(moved);
     let li = document.createElement("li");
-    li.innerHTML = moveString(move);
-    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-14");
+    li.innerHTML = moveString(move, moved, capture);
+    li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-18");
     if (state.turn === "w") {
         document.getElementById("black-moves").appendChild(li);
     } else {
@@ -255,7 +271,6 @@ function movePiece(e) {
     let myList = move(targetSquare.move, state);
     let capture = myList[0];
     let pawn = myList[2];
-    state = myList[1];
     addMove(targetSquare.move, capture, myList[3], state);
     renderState(state);
     state["nextturn"] += 1;
