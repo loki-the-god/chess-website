@@ -145,7 +145,7 @@ export function generateLegalMoves(state) {
     return legalMoves;
 }
 
-export function move(move, state, debug) {
+export function move(move, state) {
     let pieces = ["P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"];
     let castlingObj = { 4484: 327n, 4228: 192n, 8124: 3967n, 7868: 3832n };
     state["cacherights"].push(state["castling"]);

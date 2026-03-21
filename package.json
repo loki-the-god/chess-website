@@ -14,7 +14,7 @@
         "postcss:watch": "postcss style/input.css -o style/style.css --watch",
         "start": "npm run styles && npx serve",
         "dev": "vite",
-        "build": "vite build",
+        "build": "npm run styles && vite build",
         "preview": "vite preview",
         "test": "vitest"
     },
