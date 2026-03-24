@@ -34,7 +34,7 @@ export function getCheckers(state, color) {
     return checkers;
 }
 
-function isSquareAttacked(sq, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing) {
+function isSquareAttacked(sq, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendly) {
     if (PAWN_ATTACKS[enemycolorId][sq] & enemyPawns) {
         return true;
     }
@@ -44,18 +44,44 @@ function isSquareAttacked(sq, enemycolorId, enemyPawns, enemyKnights, enemyBisho
     if (KING_ATTACKS[sq] & enemyKing) {
         return true;
     }
-    let occupancybb = enemyPawns | enemyKnights | enemyBishops | enemyRooks | enemyKing;
-    if (bishopAttacks(1n << BigInt(sq), occupancybb)[0] & enemyBishops) {
+    let occupancybb = enemyPawns | enemyKnights | enemyBishops | enemyRooks | enemyKing | friendly;
+    if (bishopAttacks(enemyBishops, occupancybb)[0] & (1n << BigInt(sq))) {
         return true;
     }
-    if (rookAttacks(1n << BigInt(sq), occupancybb)[0] & enemyRooks) {
+    if (rookAttacks(enemyRooks, occupancybb)[0] & (1n << BigInt(sq))) {
         return true;
     }
     return false;
 }
 
+function updateCastlingRights(state) {
+    if (state["K"] === (1n << 4n) && (state["castling"] & 12) !== 0) {
+        if ((state["R"] & 1n) === 0n && (state["castling"] & 4) !== 0) {
+            state["castling"] &= ~4;
+        }
+        if ((state["R"] & (1n << 7n)) === 0n && (state["castling"] & 8) !== 0) {
+            state["castling"] &= ~8;
+        }
+    } else {
+        state["castling"] &= 3;
+    }
+    if (state["k"] === (1n << 60n) && (state["castling"] & 3) !== 0) {
+        if ((state["r"] & (1n << 56n)) === 0n && (state["castling"] & 1) !== 0) {
+            state["castling"] &= ~1;
+        }
+        if ((state["r"] & (1n << 63n)) === 0n && (state["castling"] & 2) !== 0) {
+            state["castling"] &= ~2;
+        }
+    } else {
+        state["castling"] &= 12;
+    }
+}
+
 export function generateLegalMoves(state) {
     let legalMoves = [];
+    if (state["castling"] > 0) {
+        updateCastlingRights(state);
+    }
     let checkers = getCheckers(state, state.turn);
     let pinned = 0n;
     let kingBb = state.turn === "w" ? state["K"] : state["k"];
@@ -127,7 +153,7 @@ export function generateLegalMoves(state) {
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
             let enemyRooks = state.turn === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
-            if (!isSquareAttacked(moveStart, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing)) {
+            if (!isSquareAttacked(moveStart, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
                 legalMoves.push(move);
             }
         }
@@ -142,7 +168,7 @@ export function generateLegalMoves(state) {
         for (let move of kingMoves(kingBb, friendlybb)) {
             let end6Mask = BigInt(0b111111000000);
             let moveEnd = (move & end6Mask) >> 6n;
-            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing)) {
+            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
                 legalMoves.push(move);
             }
         }
@@ -182,8 +208,20 @@ export function generateLegalMoves(state) {
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
             let enemyRooks = state.turn === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
-            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing)) {
+            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
                 legalMoves.push(move);
+                if (moveEnd === 5n && !isSquareAttacked(6n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "w" && (state["castling"] & 8) !== 0 && (occupancybb & (1n << 6n)) === 0n) {
+                    legalMoves.push(4484n);
+                }
+                if (moveEnd === 3n && !isSquareAttacked(2n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "w" && (state["castling"] & 4) !== 0 && (occupancybb & (1n << 2n)) === 0n) {
+                    legalMoves.push(4228n);
+                }
+                if (moveEnd === 61n && !isSquareAttacked(62n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "b" && (state["castling"] & 2) !== 0 && (occupancybb & (1n << 62n)) === 0n) {
+                    legalMoves.push(8124n);
+                }
+                if (moveEnd === 59n && !isSquareAttacked(58n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "b" && (state["castling"] & 1) !== 0 && (occupancybb & (1n << 58n)) === 0n) {
+                    legalMoves.push(7868n);
+                }
             }
         }
         let moves = generateMoves(state, state.turn, false);

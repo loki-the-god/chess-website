@@ -74,7 +74,7 @@ export function moveString(move, piece, capture) {
         return `${pieceMove}${numberToSquare(moveTarget)}=${flag.toUpperCase()}`;
     }
     else if (moveFlag === 1n) {
-        let moveStr = move < 6144n ? "0-0" : "0-0-0";
+        let moveStr = [4484n, 8124n].includes(move) ? "0-0" : "0-0-0";
         return moveStr;
     } else if (moveFlag === 2n) {
         return `${numberToSquare(moveStart)[0]}x${numberToSquare(moveTarget)}`;
@@ -172,7 +172,6 @@ export function getClicks(state, game) {
     let square;
     let color;
     let legalMoves = generateLegalMoves(state);
-    console.log(legalMoves);
     if (legalMoves.length === 0) {
         for (let rank = 0; rank < 8; rank++) {
             for (let file = 0; file < 8; file++) {
