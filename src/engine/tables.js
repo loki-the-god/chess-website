@@ -17,8 +17,8 @@ export const NOT_RANKS_78_MASK = 0x0000ffffffffffffn;
 export function initTables() {
     for (let i = 0; i < 64; i++) {
         let sq = 1n << BigInt(i);
-        PAWN_ATTACKS[0][i] = ((sq & NOT_FILE_A_MASK) << 7n) | ((sq & NOT_FILE_H_MASK) << 9n) | (sq & NOT_RANK_8_MASK);
-        PAWN_ATTACKS[1][i] = ((sq & NOT_FILE_A_MASK) >> 9n) | ((sq & NOT_FILE_H_MASK) >> 7n) | (sq & NOT_RANK_1_MASK);
+        PAWN_ATTACKS[0][i] = ((sq & NOT_FILE_A_MASK & NOT_RANK_8_MASK) << 7n) | ((sq & NOT_FILE_H_MASK & NOT_RANK_8_MASK) << 9n);
+        PAWN_ATTACKS[1][i] = ((sq & NOT_FILE_A_MASK & NOT_RANK_1_MASK) >> 9n) | ((sq & NOT_FILE_H_MASK & NOT_RANK_1_MASK) >> 7n);
         KNIGHT_ATTACKS[i] =
             ((sq & NOT_RANKS_12_MASK & NOT_FILE_A_MASK) >> 17n) |
             ((sq & NOT_RANKS_12_MASK & NOT_FILE_H_MASK) >> 15n) |
@@ -54,9 +54,11 @@ export function initTables() {
                 dir = i < j ? 1 : -1;
             } else if (Math.abs(j - i) % 7 === 0) {
                 dir = i < j ? 7 : -7;
-            } else if (Math.abs(j-i) % 9 === 0 && (jfile - ifile === jrank - irank)){
+            } else if (Math.abs(j - i) % 9 === 0 && jfile - ifile === jrank - irank) {
                 dir = i < j ? 9 : -9;
-            } else { continue; }
+            } else {
+                continue;
+            }
             let sq = i + dir;
             while (sq !== j) {
                 bij |= 1n << BigInt(sq);

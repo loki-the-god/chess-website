@@ -11,7 +11,7 @@ export function getCheckers(state, color) {
     let enemyBishops = color === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
     let enemyRooks = color === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
     let kingPos = Math.log2(Number(kingBb));
-    let enemyColor = color === "w" ? 1 : 0;
+    let friendlyColor = color === "b" ? 1 : 0;
     let checkers = 0n;
     let occupancybb =
         state["p"] |
@@ -26,7 +26,7 @@ export function getCheckers(state, color) {
         state["R"] |
         state["Q"] |
         state["K"];
-    checkers |= PAWN_ATTACKS[enemyColor][kingPos] & enemyPawns;
+    checkers |= PAWN_ATTACKS[friendlyColor][kingPos] & enemyPawns;
     checkers |= KNIGHT_ATTACKS[kingPos] & enemyKnights;
     checkers |= KING_ATTACKS[kingPos] & enemyKing;
     checkers |= bishopAttacks(kingBb, occupancybb)[0] & enemyBishops;
@@ -34,8 +34,8 @@ export function getCheckers(state, color) {
     return checkers;
 }
 
-function isSquareAttacked(sq, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendly) {
-    if (PAWN_ATTACKS[enemycolorId][sq] & enemyPawns) {
+function isSquareAttacked(sq, friendlycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendly) {
+    if (PAWN_ATTACKS[friendlycolorId][sq] & enemyPawns) {
         return true;
     }
     if (KNIGHT_ATTACKS[sq] & enemyKnights) {
@@ -55,7 +55,7 @@ function isSquareAttacked(sq, enemycolorId, enemyPawns, enemyKnights, enemyBisho
 }
 
 function updateCastlingRights(state) {
-    if (state["K"] === (1n << 4n) && (state["castling"] & 12) !== 0) {
+    if (state["K"] === 1n << 4n && (state["castling"] & 12) !== 0) {
         if ((state["R"] & 1n) === 0n && (state["castling"] & 4) !== 0) {
             state["castling"] &= ~4;
         }
@@ -65,7 +65,7 @@ function updateCastlingRights(state) {
     } else {
         state["castling"] &= 3;
     }
-    if (state["k"] === (1n << 60n) && (state["castling"] & 3) !== 0) {
+    if (state["k"] === 1n << 60n && (state["castling"] & 3) !== 0) {
         if ((state["r"] & (1n << 56n)) === 0n && (state["castling"] & 1) !== 0) {
             state["castling"] &= ~1;
         }
@@ -147,7 +147,7 @@ export function generateLegalMoves(state) {
         for (let move of kingMoves(kingBb, friendlybb)) {
             let start6Mask = BigInt(0b111111);
             let moveStart = move & start6Mask;
-            let enemycolorId = state.turn === "w" ? 1 : 0;
+            let enemycolorId = state.turn === "w" ? 0 : 1;
             let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
             let enemyKnights = state.turn === "w" ? state["n"] : state["N"];
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
@@ -159,7 +159,7 @@ export function generateLegalMoves(state) {
         }
     } else if (popCount(checkers) === 1) {
         let checkerSq = Math.log2(Number(checkers));
-        let enemycolorId = state.turn === "w" ? 1 : 0;
+        let enemycolorId = state.turn === "w" ? 0 : 1;
         let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
         let enemyKnights = state.turn === "w" ? state["n"] : state["N"];
         let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
@@ -202,7 +202,7 @@ export function generateLegalMoves(state) {
         for (let move of kingMoves(kingBb, friendlybb)) {
             let end6Mask = BigInt(0b111111000000);
             let moveEnd = (move & end6Mask) >> 6n;
-            let enemycolorId = state.turn === "w" ? 1 : 0;
+            let enemycolorId = state.turn === "w" ? 0 : 1;
             let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
             let enemyKnights = state.turn === "w" ? state["n"] : state["N"];
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
@@ -210,26 +210,59 @@ export function generateLegalMoves(state) {
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
             if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
                 legalMoves.push(move);
-                if (moveEnd === 5n && !isSquareAttacked(6n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "w" && (state["castling"] & 8) !== 0 && (occupancybb & (1n << 6n)) === 0n) {
+                if (
+                    moveEnd === 5n &&
+                    !isSquareAttacked(6n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
+                    state["turn"] === "w" &&
+                    (state["castling"] & 8) !== 0 &&
+                    (occupancybb & (1n << 6n)) === 0n
+                ) {
                     legalMoves.push(4484n);
                 }
-                if (moveEnd === 3n && !isSquareAttacked(2n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "w" && (state["castling"] & 4) !== 0 && (occupancybb & (1n << 2n)) === 0n) {
+                if (
+                    moveEnd === 3n &&
+                    !isSquareAttacked(2n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
+                    state["turn"] === "w" &&
+                    (state["castling"] & 4) !== 0 &&
+                    (occupancybb & (1n << 2n)) === 0n
+                ) {
                     legalMoves.push(4228n);
                 }
-                if (moveEnd === 61n && !isSquareAttacked(62n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "b" && (state["castling"] & 2) !== 0 && (occupancybb & (1n << 62n)) === 0n) {
+                if (
+                    moveEnd === 61n &&
+                    !isSquareAttacked(62n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
+                    state["turn"] === "b" &&
+                    (state["castling"] & 2) !== 0 &&
+                    (occupancybb & (1n << 62n)) === 0n
+                ) {
                     legalMoves.push(8124n);
                 }
-                if (moveEnd === 59n && !isSquareAttacked(58n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) && state["turn"] === "b" && (state["castling"] & 1) !== 0 && (occupancybb & (1n << 58n)) === 0n) {
+                if (
+                    moveEnd === 59n &&
+                    !isSquareAttacked(58n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
+                    state["turn"] === "b" &&
+                    (state["castling"] & 1) !== 0 &&
+                    (occupancybb & (1n << 58n)) === 0n
+                ) {
                     legalMoves.push(7868n);
                 }
             }
         }
         let moves = generateMoves(state, state.turn, false);
-        for (let move of moves) {
-            let start6Mask = BigInt(0b111111);
-            let moveStart = move & start6Mask;
-            if (((1n << moveStart) & pinned) === 0n) {
-                legalMoves.push(move);
+        for (let testmove of moves) {
+            let moveFlag = BigInt(0b1111000000000000) & testmove;
+            if (moveFlag === 2n) {
+                let myArray = move(testmove, state);
+                if (popCount(getCheckers(state, state["turn"])) === 0) {
+                    legalMoves.push(testmove);
+                }
+                unMove(testmove, state, myArray[0], myArray[3]);
+            } else {
+                let start6Mask = BigInt(0b111111);
+                let moveStart = testmove & start6Mask;
+                if (((1n << moveStart) & pinned) === 0n) {
+                    legalMoves.push(testmove);
+                }
             }
         }
     }
