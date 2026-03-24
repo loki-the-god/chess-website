@@ -1,7 +1,7 @@
 import { files } from "../ui/renderBoard.js";
-import { KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS, RANK_2_MASK, RANK_7_MASK, NOT_FILE_A_MASK, NOT_FILE_H_MASK } from "./attacks.js";
+import { KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS, RANK_2_MASK, RANK_7_MASK, NOT_FILE_A_MASK, NOT_FILE_H_MASK } from "./tables.js";
 
-export function generateMoves(state, color) {
+export function generateMoves(state, color, genking) {
     let enemybb;
     let friendlybb;
     let moves = [];
@@ -30,7 +30,11 @@ export function generateMoves(state, color) {
         queen = queenMoves(state["Q"], friendlybb, enemybb);
         king = kingMoves(state["K"], friendlybb);
     }
-    moves = [...pawn, ...knight, ...bishop, ...rook, ...queen, ...king];
+    if (genking) {
+        moves = [...pawn, ...knight, ...bishop, ...rook, ...queen, ...king];
+    } else {
+        moves = [...pawn, ...knight, ...bishop, ...rook, ...queen];
+    }
     return moves;
 }
 
@@ -105,55 +109,88 @@ function knightMoves(bb, friendlybb) {
     return moves;
 }
 function bishopMoves(bb, friendlybb, enemybb) {
-    let fileOffsets = [-1n, 1n, -1n, 1n];
-    let rankOffsets = [-1n, -1n, 1n, 1n];
-    return slidingPieces(bb, fileOffsets, rankOffsets, friendlybb, enemybb);
+    let moves = [];
+    let occupancybb = friendlybb | enemybb;
+    let attacks_per_bishop = bishopAttacks(bb, occupancybb)[1];
+    for (let [bishop, attacks] of Object.entries(attacks_per_bishop)) {
+        while (attacks) {
+            let lsb = attacks & -attacks;
+            let sq = BigInt(Math.log2(Number(lsb)));
+            if (((1n << sq) & friendlybb) === 0n) {
+                moves.push(BigInt(+bishop) + (sq << 6n));
+            }
+            attacks ^= lsb;
+        }
+    }
+    return moves;
 }
 function rookMoves(bb, friendlybb, enemybb) {
-    let fileOffsets = [-1n, 0n, 0n, 1n];
-    let rankOffsets = [0n, -1n, 1n, 0n];
-    return slidingPieces(bb, fileOffsets, rankOffsets, friendlybb, enemybb);
+    let moves = [];
+    let occupancybb = friendlybb | enemybb;
+    let attacks_per_rook = rookAttacks(bb, occupancybb)[1];
+    for (let [rook, attacks] of Object.entries(attacks_per_rook)) {
+        while (attacks) {
+            let lsb = attacks & -attacks;
+            let sq = BigInt(Math.log2(Number(lsb)));
+            if (((1n << sq) & friendlybb) === 0n) {
+                moves.push(BigInt(+rook) + (sq << 6n));
+            }
+            attacks ^= lsb;
+        }
+    }
+    return moves;
 }
 function queenMoves(bb, friendlybb, enemybb) {
     let bishop = bishopMoves(bb, friendlybb, enemybb);
     let rook = rookMoves(bb, friendlybb, enemybb);
     return [...bishop, ...rook];
 }
-
-function slidingPieces(bb, files, ranks, friendlybb, enemybb) {
-    let moves = [];
-    for (let i = 0; i < 64; i++) {
-        if (((1n << BigInt(i)) & bb) !== 0n) {
-            for (let dir = 0; dir < files.length; dir++) {
-                let file = BigInt(i % 8);
-                let rank = BigInt(i) / 8n;
-                let dirFile = files[dir];
-                let dirRank = ranks[dir];
-                let loopFile = dirFile < 0n ? file : 7n - file * dirFile;
-                let loopRank = dirRank < 0n ? rank : 7n - rank * dirRank;
-                let newFile = file;
-                let newRank = rank;
-                let newSquare;
-                for (let sq = 0; sq < Math.min(Number(loopFile), Number(loopRank)); sq++) {
-                    newFile += dirFile;
-                    newRank += dirRank;
-                    newSquare = newRank * 8n + newFile;
-                    if (((1n << BigInt(newSquare)) & friendlybb) === 0n) {
-                        moves.push(BigInt(i) + (newSquare << 6n));
-                        if (((1n << BigInt(newSquare)) & enemybb) !== 0n) {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
+export function bishopAttacks(bb, occupancybb) {
+    let fileOffsets = [-1n, 1n, -1n, 1n];
+    let rankOffsets = [-1n, -1n, 1n, 1n];
+    return slidingAttacks(bb, fileOffsets, rankOffsets, occupancybb);
+}
+export function rookAttacks(bb, occupancybb) {
+    let fileOffsets = [-1n, 0n, 0n, 1n];
+    let rankOffsets = [0n, -1n, 1n, 0n];
+    return slidingAttacks(bb, fileOffsets, rankOffsets, occupancybb);
+}
+function slidingAttacks(bb, files, ranks, occupancybb) {
+    let attacks = 0n;
+    let attacks_per_piece = {};
+    while (bb) {
+        let lsb = bb & -bb;
+        let sq = Math.log2(Number(lsb));
+        let p_attacks = 0n;
+        for (let dir = 0; dir < files.length; dir++) {
+            let file = BigInt(sq % 8);
+            let rank = BigInt(sq) / 8n;
+            let dirFile = files[dir];
+            let dirRank = ranks[dir];
+            let newFile = file;
+            let newRank = rank;
+            let newSquare;
+            while (true) {
+                newFile += dirFile;
+                newRank += dirRank;
+                newSquare = newRank * 8n + newFile;
+                if (newFile > 7n || newFile < 0n || newRank > 7n || newRank < 0n) {
+                    break;
+                }
+                p_attacks |= 1n << newSquare;
+                if (((1n << BigInt(newSquare)) & occupancybb) !== 0n) {
+                    break;
                 }
             }
         }
+        attacks_per_piece[sq.toString()] = p_attacks;
+        attacks |= p_attacks;
+        bb ^= lsb;
     }
-    return moves;
+    return [attacks, attacks_per_piece];
 }
 
-function kingMoves(bb, friendlybb) {
+export function kingMoves(bb, friendlybb) {
     let moves = [];
     while (bb) {
         let lsb = bb & -bb;

@@ -1,9 +1,10 @@
 import { fenParse } from "../engine/fenParse.js";
 import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
 import { displayBoard, renderState, files } from "./renderBoard.js";
-import { generateLegalMoves, move, inCheck } from "../engine/legalMoves.js";
+import { generateLegalMoves, move, getCheckers } from "../engine/legalMoves.js";
 import { search } from "../engine/search.js";
-import { initTables } from "../engine/attacks.js";
+import { initTables } from "../engine/tables.js";
+import { popCount } from "../engine/eval.js";
 
 export const startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 export let gameplay = "analysis";
@@ -131,12 +132,8 @@ export function computerMove(state) {
                 }
             }
         }
-        let kingLetter = state["turn"] === "w" ? "K" : "k";
-        let kingPos = BigInt(Math.round(Math.log(Number(state[kingLetter])) / Math.log(2)));
-        state["turn"] = state["turn"] === "w" ? "b" : "w";
-        let oppMoves = generateLegalMoves(state);
         let result;
-        if (!inCheck(kingPos, oppMoves)) {
+        if (popCount(getCheckers(state, state["turn"])) === 0) {
             result = "1/2-1/2";
         } else {
             result = state["turn"] === "b" ? "0-1" : "1-0";

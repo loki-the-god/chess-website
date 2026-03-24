@@ -1,5 +1,5 @@
-import { evaluate } from "./eval.js";
-import { generateLegalMoves, inCheck, move, unMove } from "./legalMoves.js";
+import { evaluate, popCount } from "./eval.js";
+import { generateLegalMoves, getCheckers, move, unMove } from "./legalMoves.js";
 
 export function search(state, depth, alpha, beta) {
     if (depth === 0) {
@@ -8,12 +8,7 @@ export function search(state, depth, alpha, beta) {
     let moves = generateLegalMoves(state);
     let bestMove = moves[0];
     if (moves.length === 0) {
-        let kingLetter = state["turn"] === "w" ? "K" : "k";
-        let kingPos = BigInt(Math.round(Math.log(Number(state[kingLetter])) / Math.log(2)));
-        state["turn"] = state["turn"] === "w" ? "b" : "w";
-        let oppMoves = generateLegalMoves(state);
-        state["turn"] = state["turn"] === "w" ? "b" : "w";
-        if (!inCheck(kingPos, oppMoves)) {
+        if (popCount(getCheckers(state, state["turn"])) === 0) {
             return [0, state.movelist[state.movelist.length - 1]];
         } else {
             return [-1000000 - depth * 100, state.movelist[state.movelist.length - 1]];

@@ -1,4 +1,4 @@
-import { initTables } from "../src/engine/attacks.js";
+import { initTables } from "../src/engine/tables.js";
 import { fenParse } from "../src/engine/fenParse.js";
 import { generateLegalMoves, move, unMove } from "../src/engine/legalMoves.js";
 import { moveString } from "../src/ui/clicks.js";

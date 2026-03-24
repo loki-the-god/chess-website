@@ -1,7 +1,8 @@
 import { displayBoard, files, renderState } from "./renderBoard.js";
-import { generateLegalMoves, move, unMove, inCheck } from "../engine/legalMoves.js";
+import { generateLegalMoves, move, unMove, getCheckers } from "../engine/legalMoves.js";
 import { computerMove } from "./game.js";
 import { getImageURL } from "../utils/importImage.js";
+import { popCount } from "../engine/eval.js";
 
 let moves = [];
 let numMoves = [];
@@ -171,6 +172,7 @@ export function getClicks(state, game) {
     let square;
     let color;
     let legalMoves = generateLegalMoves(state);
+    console.log(legalMoves);
     if (legalMoves.length === 0) {
         for (let rank = 0; rank < 8; rank++) {
             for (let file = 0; file < 8; file++) {
@@ -184,12 +186,7 @@ export function getClicks(state, game) {
                 }
             }
         }
-        let kingLetter = state["turn"] === "w" ? "K" : "k";
-        let kingPos = BigInt(Math.round(Math.log(Number(state[kingLetter])) / Math.log(2)));
-        state["turn"] = state["turn"] === "w" ? "b" : "w";
-        let oppMoves = generateLegalMoves(state);
-        let result;
-        if (!inCheck(kingPos, oppMoves)) {
+        if (popCount(getCheckers(state, state["turn"])) === 0) {
             result = "1/2-1/2";
         } else {
             result = turn === "w" ? "0-1" : "1-0";

@@ -21,7 +21,7 @@ function countMaterial(state, color) {
     return material;
 }
 
-function popCount(bb) {
+export function popCount(bb) {
     let count = 0;
     while (bb) {
         bb &= bb - 1n;
