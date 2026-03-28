@@ -1,5 +1,5 @@
 import { generateMoves, kingMoves, bishopAttacks, rookAttacks } from "./moveGen.js";
-import { PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, BETWEEN } from "./tables.js";
+import { PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, BETWEEN, LINE } from "./tables.js";
 import { files } from "../ui/renderBoard.js";
 import { popCount } from "./eval.js";
 
@@ -96,6 +96,7 @@ export function generateLegalMoves(state) {
         state.turn === "w"
             ? state["P"] | state["N"] | state["B"] | state["R"] | state["Q"] | state["K"]
             : state["p"] | state["n"] | state["b"] | state["r"] | state["q"] | state["k"];
+    let friendlybbNoKing = friendlybb ^ kingBb;
     let occupancybb =
         state["p"] |
         state["n"] |
@@ -153,12 +154,15 @@ export function generateLegalMoves(state) {
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
             let enemyRooks = state.turn === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
-            if (!isSquareAttacked(moveStart, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
+            if (
+                !isSquareAttacked(moveStart, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)
+            ) {
                 legalMoves.push(move);
             }
         }
     } else if (popCount(checkers) === 1) {
         let checkerSq = Math.log2(Number(checkers));
+        let checker = 1n << BigInt(checkerSq);
         let enemycolorId = state.turn === "w" ? 0 : 1;
         let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
         let enemyKnights = state.turn === "w" ? state["n"] : state["N"];
@@ -168,12 +172,11 @@ export function generateLegalMoves(state) {
         for (let move of kingMoves(kingBb, friendlybb)) {
             let end6Mask = BigInt(0b111111000000);
             let moveEnd = (move & end6Mask) >> 6n;
-            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb)) {
+            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)) {
                 legalMoves.push(move);
             }
         }
         let moves = generateMoves(state, state.turn, false);
-        let checker = 1n << BigInt(checkerSq);
         if ((checker & enemyRooks) !== 0n || (checker & enemyBishops) !== 0n) {
             for (let move of moves) {
                 let end6Mask = BigInt(0b111111000000);
@@ -181,20 +184,28 @@ export function generateLegalMoves(state) {
                 let start6Mask = BigInt(0b111111);
                 let moveStart = move & start6Mask;
                 if (
-                    ((1n << moveEnd) & BETWEEN[kingSq][checkerSq]) !== 0n ||
+                    (((1n << moveEnd) & BETWEEN[kingSq][checkerSq]) !== 0n && ((1n << moveStart) & pinned) === 0n) ||
                     (((1n << moveEnd) & checker) !== 0n && ((1n << moveStart) & pinned) === 0n)
                 ) {
                     legalMoves.push(move);
                 }
             }
         } else {
-            for (let move of moves) {
+            for (let testmove of moves) {
                 let end6Mask = BigInt(0b111111000000);
-                let moveEnd = (move & end6Mask) >> 6n;
+                let moveEnd = (testmove & end6Mask) >> 6n;
                 let start6Mask = BigInt(0b111111);
-                let moveStart = move & start6Mask;
-                if (((1n << moveEnd) & checker) !== 0n && ((1n << moveStart) & pinned) === 0n) {
-                    legalMoves.push(move);
+                let moveStart = testmove & start6Mask;
+                let moveFlag = (testmove & (BigInt(0b1111) << 12n)) >> 12n;
+                if (moveFlag === 2n) {
+                    let oldTurn = state["turn"];
+                    let myArray = move(testmove, state);
+                    if (popCount(getCheckers(state, oldTurn)) === 0) {
+                        legalMoves.push(testmove);
+                    }
+                    unMove(testmove, state, myArray[0], myArray[3]);
+                } else if (((1n << moveEnd) & checker) !== 0n && ((1n << moveStart) & pinned) === 0n) {
+                    legalMoves.push(testmove);
                 }
             }
         }
@@ -215,6 +226,7 @@ export function generateLegalMoves(state) {
                     !isSquareAttacked(6n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
                     state["turn"] === "w" &&
                     (state["castling"] & 8) !== 0 &&
+                    (occupancybb & (1n << 5n)) === 0n &&
                     (occupancybb & (1n << 6n)) === 0n
                 ) {
                     legalMoves.push(4484n);
@@ -224,7 +236,9 @@ export function generateLegalMoves(state) {
                     !isSquareAttacked(2n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
                     state["turn"] === "w" &&
                     (state["castling"] & 4) !== 0 &&
-                    (occupancybb & (1n << 2n)) === 0n
+                    (occupancybb & (1n << 3n)) === 0n &&
+                    (occupancybb & (1n << 2n)) === 0n &&
+                    (occupancybb & (1n << 1n)) === 0n
                 ) {
                     legalMoves.push(4228n);
                 }
@@ -233,6 +247,7 @@ export function generateLegalMoves(state) {
                     !isSquareAttacked(62n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
                     state["turn"] === "b" &&
                     (state["castling"] & 2) !== 0 &&
+                    (occupancybb & (1n << 61n)) === 0n &&
                     (occupancybb & (1n << 62n)) === 0n
                 ) {
                     legalMoves.push(8124n);
@@ -242,7 +257,9 @@ export function generateLegalMoves(state) {
                     !isSquareAttacked(58n, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybb) &&
                     state["turn"] === "b" &&
                     (state["castling"] & 1) !== 0 &&
-                    (occupancybb & (1n << 58n)) === 0n
+                    (occupancybb & (1n << 59n)) === 0n &&
+                    (occupancybb & (1n << 58n)) === 0n &&
+                    (occupancybb & (1n << 57n)) === 0n
                 ) {
                     legalMoves.push(7868n);
                 }
@@ -250,18 +267,25 @@ export function generateLegalMoves(state) {
         }
         let moves = generateMoves(state, state.turn, false);
         for (let testmove of moves) {
-            let moveFlag = BigInt(0b1111000000000000) & testmove;
+            let moveFlag = (testmove & (BigInt(0b1111) << 12n)) >> 12n;
             if (moveFlag === 2n) {
+                let oldTurn = state["turn"];
                 let myArray = move(testmove, state);
-                if (popCount(getCheckers(state, state["turn"])) === 0) {
+                if (popCount(getCheckers(state, oldTurn)) === 0) {
                     legalMoves.push(testmove);
                 }
                 unMove(testmove, state, myArray[0], myArray[3]);
             } else {
                 let start6Mask = BigInt(0b111111);
                 let moveStart = testmove & start6Mask;
+                let end6Mask = start6Mask << 6n;
+                let moveEnd = (testmove & end6Mask) >> 6n;
                 if (((1n << moveStart) & pinned) === 0n) {
                     legalMoves.push(testmove);
+                } else {
+                    if (((1n << moveEnd) & LINE[kingSq][Number(moveStart)]) !== 0n) {
+                        legalMoves.push(testmove);
+                    }
                 }
             }
         }

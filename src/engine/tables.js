@@ -52,10 +52,10 @@ export function initTables() {
                 dir = i < j ? 8 : -8;
             } else if (irank === jrank) {
                 dir = i < j ? 1 : -1;
-            } else if (Math.abs(j - i) % 7 === 0) {
-                dir = i < j ? 7 : -7;
-            } else if (Math.abs(j - i) % 9 === 0 && jfile - ifile === jrank - irank) {
+            } else if (jfile - ifile === jrank - irank) {
                 dir = i < j ? 9 : -9;
+            } else if (jfile - ifile === -(jrank - irank)) {
+                dir = i < j ? 7 : -7;
             } else {
                 continue;
             }
@@ -65,20 +65,15 @@ export function initTables() {
                 sq += dir;
             }
             sq = i + dir;
-            let filedir = dir % 8;
-            let filesq = sq % 8;
             lij |= 1n << BigInt(i);
-            while (sq >= 0 && sq < 64 && filesq >= 0 && filesq < 8) {
+            while (sq >= 0 && sq < 64 && Math.abs((sq % 8) - ((sq - dir) % 8)) <= 1) {
                 lij |= 1n << BigInt(sq);
                 sq += dir;
-                filesq += filedir;
             }
             sq = i - dir;
-            filesq = sq % 8;
-            while (sq >= 0 && sq < 64 && filesq >= 0 && filesq < 8) {
+            while (sq >= 0 && sq < 64 && Math.abs((sq % 8) - ((sq + dir) % 8)) <= 1) {
                 lij |= 1n << BigInt(sq);
                 sq -= dir;
-                filesq -= filedir;
             }
             BETWEEN[i][j] = bij;
             LINE[i][j] = lij;

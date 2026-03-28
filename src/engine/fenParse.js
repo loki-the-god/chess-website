@@ -44,7 +44,10 @@ export function fenParse(fen) {
             file += 1;
         }
     }
-    for (let index = 0; index < flags.length; index++) {
+    let index = -1;
+    while( true) {
+        index++;
+        let char = flags[index];
         if (index === 0) {
             boardState["turn"] = flags[index];
         } else if (index === 1) {
@@ -67,6 +70,7 @@ export function fenParse(fen) {
                 boardState["enpassant"] = char;
                 index++;
             }
+            break;
         }
     }
     boardState["fifty"] = parseInt(flags[flags.length - 2]);
