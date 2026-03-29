@@ -1,11 +1,11 @@
-import { evaluate, popCount } from "./eval.js";
-import { generateLegalMoves, getCheckers, move, unMove } from "./legalMoves.js";
+import { evaluate, popCount, orderMoves } from "./eval.js";
+import { getCheckers, move, unMove } from "./legalMoves.js";
 
 export function search(state, depth, alpha, beta) {
     if (depth === 0) {
-        return [evaluate(state), null];
+        return searchAllCaptures(state, alpha, beta);
     }
-    let moves = generateLegalMoves(state);
+    let moves = orderMoves(state);
     let bestMove = moves[0];
     if (moves.length === 0) {
         if (popCount(getCheckers(state, state["turn"])) === 0) {
@@ -18,7 +18,35 @@ export function search(state, depth, alpha, beta) {
         let moveArray = move(testmove, state);
         let capture = moveArray[0];
         let moved = moveArray[3];
-        let evaluation = -(search(state, depth - 1, -beta, -alpha)[0]);
+        let evaluation = -search(state, depth - 1, -beta, -alpha)[0];
+        unMove(testmove, state, capture, moved);
+        if (evaluation >= beta) {
+            return [evaluation, testmove];
+        }
+        if (evaluation > alpha) {
+            alpha = evaluation;
+            bestMove = testmove;
+        }
+    }
+    return [alpha, bestMove];
+}
+
+function searchAllCaptures(state, alpha, beta) {
+    let evaluation = evaluate(state);
+    let moves = orderMoves(state, true);
+    let bestMove = moves[0];
+    if (evaluation >= beta) {
+        return [evaluation, bestMove];
+    }
+    if (evaluation > alpha) {
+            alpha = evaluation;
+            bestMove = null;
+        }
+    for (let testmove of moves) {
+        let moveArray = move(testmove, state);
+        let capture = moveArray[0];
+        let moved = moveArray[3];
+        let evaluation = -searchAllCaptures(state, -beta, -alpha)[0];
         unMove(testmove, state, capture, moved);
         if (evaluation >= beta) {
             return [evaluation, testmove];

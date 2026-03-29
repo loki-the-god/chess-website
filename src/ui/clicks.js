@@ -173,6 +173,7 @@ export function getClicks(state, game) {
     let color;
     let legalMoves = generateLegalMoves(state);
     if (legalMoves.length === 0) {
+        let result;
         for (let rank = 0; rank < 8; rank++) {
             for (let file = 0; file < 8; file++) {
                 let square = document.getElementById(`${files[file]}${rank + 1}`);

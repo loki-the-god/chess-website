@@ -1,7 +1,7 @@
 import { files } from "../ui/renderBoard.js";
 import { KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS, RANK_2_MASK, RANK_7_MASK, NOT_FILE_A_MASK, NOT_FILE_H_MASK } from "./tables.js";
 
-export function generateMoves(state, color, genking) {
+export function generateMoves(state, color, genking, onlyCaptures = false) {
     let enemybb;
     let friendlybb;
     let moves = [];
@@ -14,21 +14,21 @@ export function generateMoves(state, color, genking) {
     if (color === "b") {
         friendlybb = state["p"] | state["n"] | state["b"] | state["r"] | state["q"] | state["k"];
         enemybb = state["P"] | state["N"] | state["B"] | state["R"] | state["Q"] | state["K"];
-        pawn = pawnMoves(state["p"], color, enemybb, friendlybb, state["enpassant"]);
-        knight = knightMoves(state["n"], friendlybb);
-        bishop = bishopMoves(state["b"], friendlybb, enemybb);
-        rook = rookMoves(state["r"], friendlybb, enemybb);
-        queen = queenMoves(state["q"], friendlybb, enemybb);
-        king = kingMoves(state["k"], friendlybb);
+        pawn = pawnMoves(state["p"], color, enemybb, friendlybb, state["enpassant"], onlyCaptures);
+        knight = knightMoves(state["n"], friendlybb, enemybb, onlyCaptures);
+        bishop = bishopMoves(state["b"], friendlybb, enemybb, onlyCaptures);
+        rook = rookMoves(state["r"], friendlybb, enemybb, onlyCaptures);
+        queen = queenMoves(state["q"], friendlybb, enemybb, onlyCaptures);
+        king = kingMoves(state["k"], friendlybb, enemybb, onlyCaptures);
     } else {
         friendlybb = state["P"] | state["N"] | state["B"] | state["R"] | state["Q"] | state["K"];
         enemybb = state["p"] | state["n"] | state["b"] | state["r"] | state["q"] | state["k"];
-        pawn = pawnMoves(state["P"], color, enemybb, friendlybb, state["enpassant"]);
-        knight = knightMoves(state["N"], friendlybb);
-        bishop = bishopMoves(state["B"], friendlybb, enemybb);
-        rook = rookMoves(state["R"], friendlybb, enemybb);
-        queen = queenMoves(state["Q"], friendlybb, enemybb);
-        king = kingMoves(state["K"], friendlybb);
+        pawn = pawnMoves(state["P"], color, enemybb, friendlybb, state["enpassant"], onlyCaptures);
+        knight = knightMoves(state["N"], friendlybb, enemybb, onlyCaptures);
+        bishop = bishopMoves(state["B"], friendlybb, enemybb, onlyCaptures);
+        rook = rookMoves(state["R"], friendlybb, enemybb, onlyCaptures);
+        queen = queenMoves(state["Q"], friendlybb, enemybb, onlyCaptures);
+        king = kingMoves(state["K"], friendlybb, enemybb, onlyCaptures);
     }
     if (genking) {
         moves = [...pawn, ...knight, ...bishop, ...rook, ...queen, ...king];
@@ -38,7 +38,7 @@ export function generateMoves(state, color, genking) {
     return moves;
 }
 
-function pawnMoves(bb, color, enemybb, friendlybb, enpassant) {
+function pawnMoves(bb, color, enemybb, friendlybb, enpassant, onlyCaptures = false) {
     let moves = [];
     while (bb) {
         let lsb = bb & -bb;
@@ -61,17 +61,19 @@ function pawnMoves(bb, color, enemybb, friendlybb, enpassant) {
         }
         let colorIndice = color === "w" ? 1n : -1n;
         let targetsq = BigInt(sq) + 8n * colorIndice;
-        if (((1n << targetsq) & (enemybb | friendlybb)) === 0n) {
-            if (((RANK_7_MASK & lsb) !== 0n && color === "w") || ((RANK_2_MASK & lsb) !== 0n && color === "b")) {
-                for (let i = 4n; i < 8n; i++) {
-                    moves.push((BigInt(targetsq) << 6n) + BigInt(sq) + (i << 12n));
-                }
-            } else {
-                moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
-                if (((RANK_7_MASK & lsb) !== 0n && color === "b") || ((RANK_2_MASK & lsb) !== 0n && color === "w")) {
-                    let pushTarget = BigInt(sq) + 16n * colorIndice;
-                    if (((1n << pushTarget) & (enemybb | friendlybb)) === 0n) {
-                        moves.push((BigInt(pushTarget) << 6n) + BigInt(sq) + (3n << 12n));
+        if (!onlyCaptures) {
+            if (((1n << targetsq) & (enemybb | friendlybb)) === 0n) {
+                if (((RANK_7_MASK & lsb) !== 0n && color === "w") || ((RANK_2_MASK & lsb) !== 0n && color === "b")) {
+                    for (let i = 4n; i < 8n; i++) {
+                        moves.push((BigInt(targetsq) << 6n) + BigInt(sq) + (i << 12n));
+                    }
+                } else {
+                    moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
+                    if (((RANK_7_MASK & lsb) !== 0n && color === "b") || ((RANK_2_MASK & lsb) !== 0n && color === "w")) {
+                        let pushTarget = BigInt(sq) + 16n * colorIndice;
+                        if (((1n << pushTarget) & (enemybb | friendlybb)) === 0n) {
+                            moves.push((BigInt(pushTarget) << 6n) + BigInt(sq) + (3n << 12n));
+                        }
                     }
                 }
             }
@@ -92,7 +94,7 @@ function pawnMoves(bb, color, enemybb, friendlybb, enpassant) {
     return moves;
 }
 
-function knightMoves(bb, friendlybb) {
+function knightMoves(bb, friendlybb, enemybb, onlyCaptures=false) {
     let moves = [];
     while (bb) {
         let lsb = bb & -bb;
@@ -101,14 +103,16 @@ function knightMoves(bb, friendlybb) {
         while (attackbb) {
             let attacklsb = attackbb & -attackbb;
             let targetsq = Math.log2(Number(attacklsb));
-            moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
+            if (((1n << BigInt(targetsq)) & enemybb) !== 0n || (((1n << BigInt(targetsq)) & enemybb) === 0n && !onlyCaptures)) {
+                moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
+            }
             attackbb ^= attacklsb;
         }
         bb ^= lsb;
     }
     return moves;
 }
-function bishopMoves(bb, friendlybb, enemybb) {
+function bishopMoves(bb, friendlybb, enemybb, onlyCaptures=false) {
     let moves = [];
     let occupancybb = friendlybb | enemybb;
     let attacks_per_bishop = bishopAttacks(bb, occupancybb)[1];
@@ -116,15 +120,17 @@ function bishopMoves(bb, friendlybb, enemybb) {
         while (attacks) {
             let lsb = attacks & -attacks;
             let sq = BigInt(Math.log2(Number(lsb)));
-            if (((1n << sq) & friendlybb) === 0n) {
-                moves.push(BigInt(+bishop) + (sq << 6n));
+            if (((1n << BigInt(+bishop)) & enemybb) !== 0n || (((1n << BigInt(+bishop)) & enemybb) === 0n && !onlyCaptures)) {
+                if (((1n << sq) & friendlybb) === 0n) {
+                    moves.push(BigInt(+bishop) + (sq << 6n));
+                }
             }
             attacks ^= lsb;
         }
     }
     return moves;
 }
-function rookMoves(bb, friendlybb, enemybb) {
+function rookMoves(bb, friendlybb, enemybb, onlyCaptures=false) {
     let moves = [];
     let occupancybb = friendlybb | enemybb;
     let attacks_per_rook = rookAttacks(bb, occupancybb)[1];
@@ -132,8 +138,10 @@ function rookMoves(bb, friendlybb, enemybb) {
         while (attacks) {
             let lsb = attacks & -attacks;
             let sq = BigInt(Math.log2(Number(lsb)));
-            if (((1n << sq) & friendlybb) === 0n) {
-                moves.push(BigInt(+rook) + (sq << 6n));
+            if (((1n << BigInt(+rook)) & enemybb) !== 0n || (((1n << BigInt(+rook)) & enemybb) === 0n && !onlyCaptures)) {
+                if (((1n << sq) & friendlybb) === 0n) {
+                    moves.push(BigInt(+rook) + (sq << 6n));
+                }
             }
             attacks ^= lsb;
         }
@@ -190,7 +198,7 @@ function slidingAttacks(bb, files, ranks, occupancybb) {
     return [attacks, attacks_per_piece];
 }
 
-export function kingMoves(bb, friendlybb) {
+export function kingMoves(bb, friendlybb, enemybb, onlyCaptures=false) {
     let moves = [];
     while (bb) {
         let lsb = bb & -bb;
@@ -199,7 +207,9 @@ export function kingMoves(bb, friendlybb) {
         while (attackbb) {
             let attacklsb = attackbb & -attackbb;
             let targetsq = Math.log2(Number(attacklsb));
-            moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
+            if (((1n << BigInt(targetsq)) & enemybb) !== 0n || (((1n << BigInt(targetsq)) & enemybb) === 0n && !onlyCaptures)) {
+                moves.push((BigInt(targetsq) << 6n) + BigInt(sq));
+            }
             attackbb ^= attacklsb;
         }
         bb ^= lsb;
