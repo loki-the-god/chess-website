@@ -2,13 +2,14 @@ import { fenParse } from "../engine/fenParse.js";
 import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
 import { displayBoard, renderState, files } from "./renderBoard.js";
 import { generateLegalMoves, move, getCheckers } from "../engine/legalMoves.js";
-import { search } from "../engine/search.js";
+import { bestMoveSoFar, iterativeDeepening } from "../engine/search.js";
 import { initTables } from "../engine/tables.js";
 import { popCount } from "../engine/eval.js";
 
-export const startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 export let gameplay = "analysis";
 export let playerTurn = null;
+
+export const startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 let cacheTurn = null;
 
 export function start() {
@@ -117,7 +118,8 @@ function startGame() {
 export function computerMove(state) {
     let legalMoves = generateLegalMoves(state);
     if (legalMoves.length !== 0) {
-        let moveToMake = search(state, 3, -Infinity, Infinity)[1];
+        iterativeDeepening(100, 5000, state, -Infinity, Infinity);
+        let moveToMake = bestMoveSoFar;
         let myArray = move(moveToMake, state);
         addMove(moveToMake, myArray[0], myArray[3], state);
         renderState(state);

@@ -65,13 +65,13 @@ export function orderMoves(state, onlyCaptures=false) {
             }
             moveVal += captureVal - pieceVal;
         }
-        if (PAWN_ATTACKS[friendlycolorId][Number(moveEnd)] & enemyPawns) {
+        if ((PAWN_ATTACKS[friendlycolorId][Number(moveEnd)] & enemyPawns) !== 0n) {
             moveVal -= pieceVal;
         }
         moves[testmove] = moveVal;
     }
     let sortedMoves = Object.entries(moves)
-        .sort(([, valA], [, valB]) => valA - valB)
+        .sort(([, valA], [, valB]) => valB - valA)
         .map(([key]) => BigInt(key));
     return sortedMoves;
 }

@@ -1,7 +1,7 @@
 import { initTables } from "../src/engine/tables.js";
 import { fenParse } from "../src/engine/fenParse.js";
 import { generateLegalMoves, move, unMove } from "../src/engine/legalMoves.js";
-import { moveString } from "../src/ui/clicks.js";
+import { moveStringVisual } from "../src/ui/clicks.js";
 import { describe, test, expect } from "vitest";
 
 function perftTest(fen, depth, s, fi) {
@@ -24,7 +24,7 @@ function perftTest(fen, depth, s, fi) {
         let numPostest = perftTest(null, depth - 1, state, false);
         numPos += numPostest;
         if (fi) {
-            console.log(`NumPos after move ${moveString(testmove)}: ${numPostest} at depth ${depth}`);
+            console.log(`NumPos after move ${moveStringVisual(testmove)}: ${numPostest} at depth ${depth}`);
         }
         unMove(testmove, state, capture, moved);
     }
