@@ -14,6 +14,7 @@ export function fenParse(fen) {
         q: 0n,
         K: 0n,
         k: 0n,
+        occupancy: 0n,
         turn: null,
         castling: 0,
         enpassant: null,

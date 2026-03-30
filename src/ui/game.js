@@ -2,7 +2,7 @@ import { fenParse } from "../engine/fenParse.js";
 import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
 import { displayBoard, renderState, files } from "./renderBoard.js";
 import { generateLegalMoves, move, getCheckers } from "../engine/legalMoves.js";
-import { bestMoveSoFar, iterativeDeepening } from "../engine/search.js";
+import { iterativeDeepening } from "../engine/search.js";
 import { initTables } from "../engine/tables.js";
 import { popCount } from "../engine/eval.js";
 
@@ -118,8 +118,7 @@ function startGame() {
 export function computerMove(state) {
     let legalMoves = generateLegalMoves(state);
     if (legalMoves.length !== 0) {
-        iterativeDeepening(100, 5000, state, -Infinity, Infinity);
-        let moveToMake = bestMoveSoFar;
+        let moveToMake = iterativeDeepening(100, 2000, state, -Infinity, Infinity);
         let myArray = move(moveToMake, state);
         addMove(moveToMake, myArray[0], myArray[3], state);
         renderState(state);

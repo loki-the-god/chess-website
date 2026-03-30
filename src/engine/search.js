@@ -127,8 +127,10 @@ function searchAllCaptures(state, alpha, beta) {
 
 export function iterativeDeepening(maxDepth, timer, state, alpha, beta) {
     movesOrdered = {};
+    let bestCompletedMove = null;
     startTimer(timer);
     for (let depth = 1; depth <= maxDepth; depth++) {
+        bestMoveSoFar = bestCompletedMove;
         let moves =
             depth === 1
                 ? null
@@ -139,6 +141,8 @@ export function iterativeDeepening(maxDepth, timer, state, alpha, beta) {
         if (shouldStop) {
             console.log(depth);
             break;
-        }
+        } else {
+        bestCompletedMove = bestMoveSoFar;}
     }
+    return bestCompletedMove;
 }
