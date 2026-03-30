@@ -14,7 +14,7 @@ export function fenParse(fen) {
         q: 0n,
         K: 0n,
         k: 0n,
-        occupancy: 0n,
+        occupancybb: 0n,
         turn: null,
         castling: 0,
         enpassant: null,
@@ -46,7 +46,7 @@ export function fenParse(fen) {
         }
     }
     let index = -1;
-    while( true) {
+    while (true) {
         index++;
         let char = flags[index];
         if (index === 0) {
@@ -76,5 +76,18 @@ export function fenParse(fen) {
     }
     boardState["fifty"] = parseInt(flags[flags.length - 2]);
     boardState["nextturn"] = parseInt(flags[flags.length - 1]);
+    boardState["occupancybb"] =
+        boardState["p"] |
+        boardState["n"] |
+        boardState["b"] |
+        boardState["r"] |
+        boardState["q"] |
+        boardState["k"] |
+        boardState["P"] |
+        boardState["N"] |
+        boardState["B"] |
+        boardState["R"] |
+        boardState["Q"] |
+        boardState["K"];
     return boardState;
 }

@@ -13,19 +13,7 @@ export function getCheckers(state, color) {
     let kingPos = Math.log2(Number(kingBb));
     let friendlyColor = color === "b" ? 1 : 0;
     let checkers = 0n;
-    let occupancybb =
-        state["p"] |
-        state["n"] |
-        state["b"] |
-        state["r"] |
-        state["q"] |
-        state["k"] |
-        state["P"] |
-        state["N"] |
-        state["B"] |
-        state["R"] |
-        state["Q"] |
-        state["K"];
+    let occupancybb = state.occupancybb;
     checkers |= PAWN_ATTACKS[friendlyColor][kingPos] & enemyPawns;
     checkers |= KNIGHT_ATTACKS[kingPos] & enemyKnights;
     checkers |= KING_ATTACKS[kingPos] & enemyKing;
@@ -77,7 +65,7 @@ function updateCastlingRights(state) {
     }
 }
 
-export function generateLegalMoves(state, onlyCaptures=false) {
+export function generateLegalMoves(state, onlyCaptures = false) {
     let legalMoves = [];
     if (state["castling"] > 0) {
         updateCastlingRights(state);
@@ -101,19 +89,7 @@ export function generateLegalMoves(state, onlyCaptures=false) {
             ? state["P"] | state["N"] | state["B"] | state["R"] | state["Q"] | state["K"]
             : state["p"] | state["n"] | state["b"] | state["r"] | state["q"] | state["k"];
     let friendlybbNoKing = friendlybb ^ kingBb;
-    let occupancybb =
-        state["p"] |
-        state["n"] |
-        state["b"] |
-        state["r"] |
-        state["q"] |
-        state["k"] |
-        state["P"] |
-        state["N"] |
-        state["B"] |
-        state["R"] |
-        state["Q"] |
-        state["K"];
+    let occupancybb = state["occupancybb"];
     for (let i = 0; i < 8; i++) {
         let filedir = fileOffsets[i];
         let rankdir = rankOffsets[i];
@@ -342,6 +318,7 @@ export function move(move, state) {
         }
     }
     state[movedPiece] &= ~(1n << moveStart);
+    state["occupancybb"] &= ~(1n << moveStart);
     if (flag === 0n) {
         state[movedPiece] |= 1n << moveTarget;
     }
@@ -350,6 +327,7 @@ export function move(move, state) {
     }
     if (capture) {
         state[capture] &= ~(1n << moveTarget);
+        state["occupancybb"] &= ~(1n << moveTarget);
     }
     if (castlingflag) {
         let rook = turn === "w" ? "R" : "r";
@@ -359,6 +337,8 @@ export function move(move, state) {
         let rookTarget = (rookMove & target6Mask) >> 6n;
         state[rook] &= ~(1n << rookStart);
         state[rook] |= 1n << rookTarget;
+        state["occupancybb"] &= ~(1n << rookStart);
+        state["occupancybb"] |= 1n << rookTarget;
     }
     if (flag > 3n) {
         let flagStr = `${flag}`;
@@ -366,11 +346,14 @@ export function move(move, state) {
         let objPiece = turn === "b" ? flagPiece.toLowerCase() : flagPiece;
         state[objPiece] |= 1n << moveTarget;
     }
+    state["occupancybb"] |= 1n << moveTarget;
     if (epFlag) {
         if (turn === "w") {
             state["p"] &= ~(1n << (moveTarget - 8n));
+            state["occupancybb"] &= ~(1n << (moveTarget - 8n));
         } else {
             state["P"] &= ~(1n << (moveTarget + 8n));
+            state["occupancybb"] &= ~(1n << (moveTarget + 8n));
         }
     }
     if (doublePushFlag) {
@@ -408,14 +391,17 @@ export function unMove(move, state, capture, movedPiece) {
     }
     let turn = state["turn"];
     state[movedPiece] &= ~(1n << moveTarget);
+    state["occupancybb"] &= ~(1n << moveTarget);
     if (flag === 0n) {
         state[movedPiece] |= 1n << moveStart;
     } else {
         let promPiece = turn === "w" ? "P" : "p";
         state[promPiece] |= 1n << moveStart;
     }
+    state["occupancybb"] |= 1n << moveStart;
     if (capture) {
         state[capture] |= 1n << moveTarget;
+        state["occupancybb"] |= 1n << moveTarget;
     }
     if (flag > 0n) {
         const flagObj = { 4: "Q", 5: "N", 6: "R", 7: "B" };
@@ -430,13 +416,17 @@ export function unMove(move, state, capture, movedPiece) {
         let rookStart = rookMove & start6Mask;
         let rookTarget = (rookMove & target6Mask) >> 6n;
         state[rook] &= ~(1n << rookTarget);
+        state["occupancybb"] &= ~(1n << rookTarget);
         state[rook] |= 1n << rookStart;
+        state["occupancybb"] |= 1n << rookStart;
     }
     if (epFlag) {
         if (turn === "w") {
             state["p"] |= 1n << (moveTarget - 8n);
+            state["occupancybb"] |= 1n << (moveTarget - 8n);
         } else {
             state["P"] |= 1n << (moveTarget + 8n);
+            state["occupancybb"] |= 1n << (moveTarget + 8n);
         }
     }
     state["enpassant"] = state["cacheep"].pop();
