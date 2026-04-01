@@ -1,18 +1,22 @@
 # My chess website
 
-A chess website made using HTML, Tailwind CSS, PostCSS, and vanilla JavaScript, and bundled with Vite.  
+A chess website made with vanilla JS.
 It allows users to play chess against the computer and analyze positions.  
-The engine and the move generation was entirely made from scratch without libraries.  
+The engine was entirely made by me from scratch.
+
+## List of technologies
+- HTML
+- Tailwind CSS
+- PostCSS
+- Vanilla JS
+- Vite
 
 ## Installation
 
-Run these commands: 
-
-     git clone https://github.com/loki-the-god/chess-website.git  
-     cd chess-website  
-     npm install
-     npm run build
-     npm run preview
+- Clone the repo (`git clone https://github.com/loki-the-god/chess-website.git`)
+- Install dependencies (`npm install`)
+- Start the project (`npm run start`)
+- Open `localhost:5173` in your browser
 
 ## Usage
 Click on the pieces and then click on any of the higlighted squares to move.  
@@ -22,4 +26,5 @@ To play against the computer, select Vs. Computer, choose a color and press Play
 - Improve the engine
 - Add an option to see the current evaluation of the position
 - Improve the UI
-
+- Add themes and board customization
+- Add different levels for the engine
