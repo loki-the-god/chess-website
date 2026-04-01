@@ -111,7 +111,7 @@ function startGame() {
     if (playerTurn === state["turn"]) {
         getClicks(state, true);
     } else {
-        computerMove(state);
+        setTimeout(() => computerMove(state), 0);
     }
 }
 
@@ -137,7 +137,7 @@ export function computerMove(state) {
         if (popCount(getCheckers(state, state["turn"])) === 0) {
             result = "1/2-1/2";
         } else {
-            result = state["turn"] === "b" ? "0-1" : "1-0";
+            result = state["turn"] === "b" ? "1-0" : "0-1";
         }
         document.getElementById("result").innerHTML += `<p>RESULT: ${result}</p>`;
         if (result !== "1/2-1/2") {

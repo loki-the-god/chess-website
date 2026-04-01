@@ -126,8 +126,8 @@ export function generateLegalMoves(state, onlyCaptures = false) {
     if (popCount(checkers) > 1) {
         let kingBb = state.turn === "w" ? state["K"] : state["k"];
         for (let move of kingMoves(kingBb, friendlybb, enemybb, onlyCaptures)) {
-            let start6Mask = BigInt(0b111111);
-            let moveStart = move & start6Mask;
+            let end6Mask = BigInt(0b111111000000);
+            let moveEnd = (move & end6Mask) >> 6n;
             let enemycolorId = state.turn === "w" ? 0 : 1;
             let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
             let enemyKnights = state.turn === "w" ? state["n"] : state["N"];
@@ -135,7 +135,7 @@ export function generateLegalMoves(state, onlyCaptures = false) {
             let enemyRooks = state.turn === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
             if (
-                !isSquareAttacked(moveStart, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)
+                !isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)
             ) {
                 legalMoves.push(move);
             }

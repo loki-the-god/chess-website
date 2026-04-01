@@ -139,7 +139,6 @@ export function iterativeDeepening(maxDepth, timer, state, alpha, beta) {
                         .map(([key]) => BigInt(key));
         searchRoot(state, depth, alpha, beta, moves);
         if (shouldStop) {
-            console.log(depth);
             break;
         } else {
         bestCompletedMove = bestMoveSoFar;}

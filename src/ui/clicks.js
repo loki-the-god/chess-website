@@ -53,7 +53,7 @@ function squareToNumber(square) {
     let file = files.indexOf(fileStr);
     return rank * 8 + file;
 }
-export function moveStringVisual(move, piece, capture) {
+export function moveString(move, piece, capture) {
     let start6Mask = BigInt(0b111111);
     let moveStart = move & start6Mask;
     let target6Mask = start6Mask << 6n;
@@ -246,11 +246,11 @@ export function getClicks(state, game) {
 
 export function addMove(move, capture, moved, state) {
     numMoves.push(move);
-    moves.push(moveStringVisual(move, moved, capture));
+    moves.push(moveString(move, moved, capture));
     captures.push(capture);
     movedPieces.push(moved);
     let li = document.createElement("li");
-    li.innerHTML = moveStringVisual(move, moved, capture);
+    li.innerHTML = moveString(move, moved, capture);
     li.classList.add("border-2", "border-white", "bg-sky-900", "text-white", "pr-0.5", "pl-0.5", "flex", "justify-center", "w-18");
     if (state.turn === "w") {
         document.getElementById("black-moves").appendChild(li);
