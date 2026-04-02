@@ -1,5 +1,5 @@
 import { displayBoard, files, renderState } from "./renderBoard.js";
-import { generateLegalMoves, move, unMove, getCheckers } from "../engine/legalMoves.js";
+import { generateLegalMoves, move, unMove, getCheckers, drawPos } from "../engine/legalMoves.js";
 import { computerMove } from "./game.js";
 import { getImageURL } from "../utils/importImage.js";
 import { popCount } from "../engine/eval.js";
@@ -199,6 +199,19 @@ export function getClicks(state, game) {
             document.getElementById("choose").classList.remove("hidden");
         }
     } else if (state["fifty"] >= 100) {
+        document.getElementById("result").innerHTML = `<p>RESULT: 1/2-1/2</p>`;
+        for (let rank = 0; rank < 8; rank++) {
+            for (let file = 0; file < 8; file++) {
+                let square = document.getElementById(`${files[file]}${rank + 1}`);
+                if (square.children.length > 1) {
+                    square.removeChild(square.children[1]);
+                }
+            }
+        }
+        if (game) {
+            document.getElementById("choose").classList.remove("hidden");
+        }
+    } else if (drawPos(state)) {
         document.getElementById("result").innerHTML = `<p>RESULT: 1/2-1/2</p>`;
         for (let rank = 0; rank < 8; rank++) {
             for (let file = 0; file < 8; file++) {

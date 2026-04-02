@@ -134,9 +134,7 @@ export function generateLegalMoves(state, onlyCaptures = false) {
             let enemyBishops = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
             let enemyRooks = state.turn === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
             let enemyKing = state.turn === "w" ? state["k"] : state["K"];
-            if (
-                !isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)
-            ) {
+            if (!isSquareAttacked(moveEnd, enemycolorId, enemyPawns, enemyKnights, enemyBishops, enemyRooks, enemyKing, friendlybbNoKing)) {
                 legalMoves.push(move);
             }
         }
@@ -433,4 +431,34 @@ export function unMove(move, state, capture, movedPiece) {
     state["castling"] = state["cacherights"].pop();
     state.movelist.pop();
     return state;
+}
+
+export function drawPos(state) {
+    let occupancy = state["occupancybb"];
+    if (popCount(occupancy) > 4) {
+        return false;
+    }
+
+    let kings = state["K"] | state["k"];
+    if (kings === occupancy) {
+        return true;
+    }
+
+    let bishops = state["B"] | state["b"];
+    let knights = state["N"] | state["n"];
+    if (popCount(bishops | knights) === 1 && (kings | bishops | knights) === occupancy) {
+        return true;
+    }
+
+    if (popCount(state["b"]) === 1 && popCount(state["B"]) === 1) {
+        let wsq = Math.log2(Number(state["B"]));
+        let bsq = Math.log2(Number(state["b"]));
+        let wcolor = (Math.floor(wsq / 8) + (wsq % 8)) % 2;
+        let bcolor = (Math.floor(bsq / 8) + (bsq % 8)) % 2;
+
+        if (wcolor === bcolor) {
+            return true;
+        }
+    }
+    return false;
 }

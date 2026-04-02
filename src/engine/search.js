@@ -1,5 +1,5 @@
 import { evaluate, popCount, orderMoves } from "./eval.js";
-import { getCheckers, move, unMove } from "./legalMoves.js";
+import { drawPos, getCheckers, move, unMove } from "./legalMoves.js";
 
 export let shouldStop = false;
 export let bestMoveSoFar = null;
@@ -65,6 +65,10 @@ function search(state, depth, alpha, beta, moves = null) {
         } else {
             return [-1000000 - depth * 100, state.movelist[state.movelist.length - 1]];
         }
+    } else if (drawPos(state)) {
+        return [0, state.movelist[state.movelist.length - 1]];
+    } else if (state["fifty"] >= 100) {
+        return [0, state.movelist[state.movelist.length - 1]];
     }
     for (let testmove of movesCheck) {
         checkTime();
