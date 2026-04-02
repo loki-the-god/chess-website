@@ -1,4 +1,5 @@
 import { generateLegalMoves } from "./legalMoves.js";
+import { bitScan } from "./moveGen.js";
 import { PAWN_ATTACKS } from "./tables.js";
 
 
@@ -61,7 +62,7 @@ function countMaterial(state, color, ew) {
         let bb = state[statePiece];
         while (bb) {
             let lsb = bb & -bb;
-            let sq = Math.log2(Number(lsb));
+            let sq = bitScan(lsb);
             let filesq = sq % 8;
             let ranksq = Math.floor(sq / 8);
             let tablesq = color === "w" ? (7 - ranksq) * 8 + filesq : ranksq * 8 + (7 - filesq);

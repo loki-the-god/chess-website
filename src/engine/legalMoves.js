@@ -1,4 +1,4 @@
-import { generateMoves, kingMoves, bishopAttacks, rookAttacks } from "./moveGen.js";
+import { generateMoves, kingMoves, bishopAttacks, rookAttacks, bitScan } from "./moveGen.js";
 import { PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, BETWEEN, LINE } from "./tables.js";
 import { files } from "../ui/renderBoard.js";
 import { popCount } from "./eval.js";
@@ -10,7 +10,7 @@ export function getCheckers(state, color) {
     let enemyKing = color === "w" ? state["k"] : state["K"];
     let enemyBishops = color === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
     let enemyRooks = color === "w" ? state["r"] | state["q"] : state["R"] | state["Q"];
-    let kingPos = Math.log2(Number(kingBb));
+    let kingPos = bitScan(kingBb);
     let friendlyColor = color === "b" ? 1 : 0;
     let checkers = 0n;
     let occupancybb = state.occupancybb;
@@ -73,7 +73,7 @@ export function generateLegalMoves(state, onlyCaptures = false) {
     let checkers = getCheckers(state, state.turn);
     let pinned = 0n;
     let kingBb = state.turn === "w" ? state["K"] : state["k"];
-    let kingSq = Math.log2(Number(kingBb));
+    let kingSq = bitScan(kingBb);
     let fileOffsets = [-1n, 1n, -1n, 1n, -1n, 0n, 0n, 1n];
     let rankOffsets = [-1n, -1n, 1n, 1n, 0n, -1n, 1n, 0n];
     let enemyDiagonalSliders = state.turn === "w" ? state["b"] | state["q"] : state["B"] | state["Q"];
@@ -139,7 +139,7 @@ export function generateLegalMoves(state, onlyCaptures = false) {
             }
         }
     } else if (popCount(checkers) === 1) {
-        let checkerSq = Math.log2(Number(checkers));
+        let checkerSq = bitScan(checkers);
         let checker = 1n << BigInt(checkerSq);
         let enemycolorId = state.turn === "w" ? 0 : 1;
         let enemyPawns = state.turn === "w" ? state["p"] : state["P"];
@@ -451,8 +451,8 @@ export function drawPos(state) {
     }
 
     if (popCount(state["b"]) === 1 && popCount(state["B"]) === 1) {
-        let wsq = Math.log2(Number(state["B"]));
-        let bsq = Math.log2(Number(state["b"]));
+        let wsq = bitScan(state["B"]);
+        let bsq = bitScan(state["b"]);
         let wcolor = (Math.floor(wsq / 8) + (wsq % 8)) % 2;
         let bcolor = (Math.floor(bsq / 8) + (bsq % 8)) % 2;
 
