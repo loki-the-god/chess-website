@@ -223,5 +223,5 @@ const index64 = [
 ];
 export function bitScan(bb) {
     const debruijn64 = 285870213051386505n;
-    return index64[Number((((bb & -bb) * debruijn64) >> 58n) & 64n)];
+    return index64[Number((((bb & -bb) * debruijn64) >> 58n) & 63n)];
 }
