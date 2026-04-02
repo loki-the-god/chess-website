@@ -2,7 +2,6 @@ import { generateLegalMoves } from "./legalMoves.js";
 import { bitScan } from "./moveGen.js";
 import { PAWN_ATTACKS } from "./tables.js";
 
-
 let pawnTableStart = [
     0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, -30, -30, 10, 10, 10, 10, 10, -40, -20, -20, -30, 10, 10, 0, 0, 0, 40, 40, 0, 0, 0, 10, 10, 20, 60,
     60, 20, 0, 0, 30, 30, 30, 50, 50, 30, 30, 30, 70, 70, 70, 70, 70, 70, 70, 70, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -43,7 +42,10 @@ let kingTableEnd = [
 
 let pieceValues = [100, 300, 320, 500, 900, 10000];
 let tables = [knightTable, bishopTable, rookTable, queenTable];
-let otherTables = [[pawnTableStart, pawnTableEnd], [kingTableStart, kingTableEnd]];
+let otherTables = [
+    [pawnTableStart, pawnTableEnd],
+    [kingTableStart, kingTableEnd],
+];
 let pieces = ["P", "N", "B", "R", "Q", "K"];
 
 export function evaluate(state) {
@@ -55,7 +57,7 @@ export function evaluate(state) {
 
 function countMaterial(state, color, ew) {
     let material = 0;
-    for (let i = 0; i<pieceValues.length; i++) {
+    for (let i = 0; i < pieceValues.length; i++) {
         let piece = pieces[i];
         let value = pieceValues[i];
         let statePiece = color === "w" ? piece : piece.toLowerCase();
@@ -68,13 +70,13 @@ function countMaterial(state, color, ew) {
             let tablesq = color === "w" ? (7 - ranksq) * 8 + filesq : ranksq * 8 + (7 - filesq);
             let tableval;
             if (piece !== "P" && piece !== "K") {
-                tableval = tables[i-1][tablesq];
+                tableval = tables[i - 1][tablesq];
             } else {
                 let tableidx = i % 2;
                 tableval = otherTables[tableidx][0][tablesq] * (1 - ew) + otherTables[tableidx][1][tablesq] * ew;
             }
             material += value + tableval;
-            bb &= bb -1n;
+            bb &= bb - 1n;
         }
     }
     return material;
@@ -94,37 +96,49 @@ export function orderMoves(state, onlyCaptures = false) {
     let moves = {};
     let end6Mask = BigInt(0b111111000000);
     let start6Mask = BigInt(0b111111);
-    for (let testmove of generateLegalMoves(state, onlyCaptures)) {
+    for (let testmove of generateLegalMoves(state, true)) {
         let pieceVal;
         let moveVal = 0;
         let moveStart = testmove & start6Mask;
         let moveEnd = (testmove & end6Mask) >> 6n;
         let moveFlag = (testmove & (BigInt(0b1111) << 12n)) >> 12n;
-        for (let piece of Object.keys(state)) {
-            if (pieces.includes(piece)) {
-                if (((1n << moveStart) & state[piece]) !== 0n) {
-                    pieceVal = pieceValues[pieces.indexOf(piece)];
-                }
+        for (let piece of pieces) {
+            if (((1n << moveStart) & state[piece]) !== 0n) {
+                pieceVal = pieceValues[pieces.indexOf(piece)];
             }
-        }
-        if (moveFlag > 3n) {
-            moveVal += pieceValues[proms.indexOf(moveFlag)];
-        }
-        if (((1n << moveEnd) & enemyBb) !== 0n) {
-            let captureVal = 0;
-            for (let piece of Object.keys(state)) {
-                if (oppPieces.includes(piece)) {
+            if (((1n << moveEnd) & enemyBb) !== 0n) {
+                let captureVal = 0;
+                for (let piece of oppPieces) {
                     if (((1n << moveEnd) & state[piece]) !== 0n) {
                         captureVal = 10 * pieceValues[oppPieces.indexOf(piece)];
                     }
                 }
+                moveVal += captureVal - pieceVal;
             }
-            moveVal += captureVal - pieceVal;
+            if (moveFlag > 3n) {
+                moveVal += pieceValues[proms.indexOf(moveFlag)];
+            }
+            moves[testmove] = moveVal;
         }
-        if ((PAWN_ATTACKS[friendlycolorId][Number(moveEnd)] & enemyPawns) !== 0n) {
-            moveVal -= pieceVal;
+    }
+    if (!onlyCaptures) {
+        for (let testmove of generateLegalMoves(state, false)) {
+            if (moves[testmove]) {
+                continue;
+            }
+            let pieceVal;
+            let moveVal = 0;
+            let moveEnd = (testmove & end6Mask) >> 6n;
+            let moveFlag = (testmove & (BigInt(0b1111) << 12n)) >> 12n;
+            if (moveFlag > 3n) {
+                moveVal += pieceValues[proms.indexOf(moveFlag)];
+            }
+            if ((PAWN_ATTACKS[friendlycolorId][Number(moveEnd)] & enemyPawns) !== 0n) {
+                moveVal -= pieceVal;
+            }
+
+            moves[testmove] = moveVal;
         }
-        moves[testmove] = moveVal;
     }
     let sortedMoves = Object.entries(moves)
         .sort(([, valA], [, valB]) => valB - valA)

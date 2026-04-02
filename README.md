@@ -23,8 +23,14 @@ Click on the pieces and then click on any of the higlighted squares to move.
 To play against the computer, select Vs. Computer, choose a color and press Play.  
 
 ## Planned Improvements
-- Improve the engine
+- Add a trasposition table
+- Add magic bitboards
+- Add an opening book
 - Add an option to see the current evaluation of the position
-- Improve the UI
 - Add themes and board customization
 - Add different levels for the engine
+- Add UCI
+
+----
+
+These improvements will come eventually, but I'm taking a break from this project.

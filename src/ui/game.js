@@ -118,7 +118,7 @@ function startGame() {
 export function computerMove(state) {
     let legalMoves = generateLegalMoves(state);
     if (legalMoves.length !== 0) {
-        let moveToMake = iterativeDeepening(100, 2000, state, -Infinity, Infinity);
+        let moveToMake = iterativeDeepening(100, 5000, state, -Infinity, Infinity);
         let myArray = move(moveToMake, state);
         addMove(moveToMake, myArray[0], myArray[3], state);
         renderState(state);
