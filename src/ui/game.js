@@ -1,6 +1,6 @@
 import { fenParse } from "../engine/fenParse.js";
 import { clearLists, getClicks, addMove, clearEvents } from "./clicks.js";
-import { displayBoard, renderState, files } from "./renderBoard.js";
+import { displayBoard, renderState, files, pieces } from "./renderBoard.js";
 import { generateLegalMoves, move, getCheckers } from "../engine/legalMoves.js";
 import { iterativeDeepening } from "../engine/search.js";
 import { initTables } from "../engine/tables.js";
@@ -14,6 +14,8 @@ let cacheTurn = null;
 
 export function start() {
     let state = fenParse(startFen);
+    document.querySelector("#white button").src = pieces["w_king"];
+    document.querySelector("#black button").src = pieces["b_king"];
     initTables();
     displayBoard(state["turn"]);
     renderState(state);
