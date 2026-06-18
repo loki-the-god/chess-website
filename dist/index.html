@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Chess site</title>
+        <meta name="description" content="A chess website with an engine made from scratch." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <script type="module" crossorigin src="/assets/index-C0vY-FAZ.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-BqJYO2iu.css">
+    </head>
+    <body class="pl-2 pt-2 bg-purple-200">
+        <main class="flex flex-col sm:flex-row">
+            <div class="size-[90vmin] sm:size-128 grid grid-cols-8 aspect-square" id="board"></div>
+            <div class="bg-sky-900 w-[90vmin] h-36 sm:w-40 sm:h-128 flex flex-col items-center text-white">
+                <p class="text-xl sm:text-lg">Moves:</p>
+                <div class="flex overflow-y-auto">
+                    <ul id="white-moves"></ul>
+                    <ul id="black-moves"></ul>
+                </div>
+                <div id="result" class="flex flex-col items-center justify-center w-24 text-center"></div>
+            </div>
+            <section id="choose" class="sm:pl-2 flex flex-col items-center w-[90vmin] sm:w-auto">
+                <header class="flex justify-center">
+                    <h2 class="font-bold text-2xl sm:text-xl">Game Settings</h2>
+                </header>
+                <div id="choose-mode" class="flex justify-center gap-2">
+                    <button id="analysis" class="bg-purple-200 cursor-pointer border-b-2 border-b-purple-600">Analysis</button>
+                    <button id="play" class="bg-purple-200 cursor-pointer border-none">Vs. Computer</button>
+                </div>
+                <div class="hidden" id="vs-computer">
+                    <div id="choose-color">
+                        <button id="white" class="bg-purple-200 cursor-pointer border-b-2 border-b-purple-600">
+                            <img src="/assets/w_king-DBRwFw4d.png" class="size-16" alt="Play as white" />
+                        </button>
+                        <button id="black" class="bg-purple-200 cursor-pointer border-none">
+                            <img src="/assets/b_king-B76rjq4l.png" class="size-16" alt="Play as black" />
+                        </button>
+                    </div>
+                    <div class="flex justify-center">
+                        <button
+                            id="start"
+                            class="cursor-pointer hover:bg-purple-500 border-2 pl-1.25 pr-1.25 border-gray-500 hover:border-none hover:pl-1.75 hover:pr-1.75 hover:pt-0.5 hover:pb-0.5"
+                        >
+                            Play!
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
