@@ -14,8 +14,8 @@ let cacheTurn = null;
 
 export function start() {
     let state = fenParse(startFen);
-    document.querySelector("#white button").src = pieces["w_king"];
-    document.querySelector("#black button").src = pieces["b_king"];
+    document.querySelector("#white img").src = pieces["w_king"];
+    document.querySelector("#black img").src = pieces["b_king"];
     initTables();
     displayBoard(state["turn"]);
     renderState(state);
