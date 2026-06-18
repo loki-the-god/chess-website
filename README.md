@@ -3,6 +3,7 @@
 A chess website made with vanilla JS.
 It allows users to play chess against the computer and analyze positions.  
 The engine was entirely made by me from scratch.
+Accessible in https://loki-the-god.github.io/chess-website/
 
 ## List of technologies
 - HTML

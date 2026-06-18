@@ -1,7 +1,6 @@
-import { displayBoard, files, renderState } from "./renderBoard.js";
+import { displayBoard, files, renderState, pieces } from "./renderBoard.js";
 import { generateLegalMoves, move, unMove, getCheckers, drawPos } from "../engine/legalMoves.js";
 import { computerMove } from "./game.js";
-import { getImageURL } from "../utils/importImage.js";
 import { popCount } from "../engine/eval.js";
 
 let moves = [];
@@ -367,7 +366,7 @@ function handlePromotion(e) {
     let pieces = ["queen", "knight", "rook", "bishop"];
     for (let i = 0; i < 4; i++) {
         let square = document.getElementById(pos[i]);
-        let src = getImageURL(`/assets/${turn}_${pieces[i]}.png`);
+        let src = pieces[`${turn}_${pieces[i]}`];
         square.innerHTML += `<button class="bg-indigo-400 border-none size-16 flex items-center justify-center absolute rounded-4xl group hover:bg-orange-700 hover:rounded-none transition-all duration-100"><img class="size-12 group-hover:size-16 transition-all duration-100" src="${src}"></button>`;
         let promButton = square.children[square.children.length - 1];
         promButton.move = targetProm.move[i];

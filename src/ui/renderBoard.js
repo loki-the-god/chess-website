@@ -1,6 +1,19 @@
-import { getImageURL } from "../utils/importImage.js";
-
 export let files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+import bp from "../assets/b_pawn.png";
+import wp from "../assets/w_pawn.png";
+import bn from "../assets/b_knight.png";
+import wn from "../assets/w_knight.png";
+import bb from "../assets/b_bishop.png";
+import wb from "../assets/w_bishop.png";
+import br from "../assets/b_rook.png";
+import wr from "../assets/w_rook.png";
+import bq from "../assets/b_queen.png";
+import wq from "../assets/w_queen.png";
+import bk from "../assets/b_king.png";
+import wk from "../assets/w_king.png";
+
+export let pieces = {"b_pawn": bp, "w_pawn": wp, "b_knight": bn, "w_knight": wn, "b_bishop": bb, "w_bishop": wb, "b_rook": br, "w_rook": wr, "b_queen": bq, "w_queen": wq, "b_king": bk, "w_king": wk};
 
 export function displayBoard(perspective) {
     let brd = document.getElementById("board");
@@ -40,7 +53,7 @@ export function renderState(state) {
                 if (((1n << BigInt(pos)) & bb) === 1n << BigInt(pos)) {
                     let color = piece.toLowerCase() === piece ? "b" : "w";
                     let coolor = color === "w" ? "white" : "black";
-                    let src = getImageURL(`/assets/${color}_${pieceMap[piece.toLowerCase()]}.png`);
+                    let src = pieces[`${color}_${pieceMap[piece.toLowerCase()]}`];
                     square.innerHTML = `<img class="w-full h-full object-contain" src="${src}" data-color="${color}" alt="${coolor}-${pieceMap[piece.toLowerCase()]}">`;
                     break;
                 }
